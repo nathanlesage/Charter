@@ -4,7 +4,6 @@
       <div class="pane-group">
         <!-- BEGIN: SIDEBAR -->
         <div class="pane-sm sidebar padded">
-          <p><strong>Charter</strong></p>
           <!-- BEGIN: VIEW TOGGLE -->
           <div class="btn-group">
             <button
@@ -35,6 +34,13 @@
           <!-- BEGIN OPTION VIEWER SIDEBAR CONTENTS -->
           <SidebarOptions
             v-bind:current-view="currentView"
+            v-model="chartOptions"
+            v-bind:chart-type="chartType"
+            v-bind:dataset="dataset"
+            v-bind:use-as-labels="useAsLabels"
+            v-on:charttype="chartType = $event"
+            v-on:dataset="dataset = $event"
+            v-on:useaslabels="useAsLabels = $event"
           ></SidebarOptions>
         </div>
         <!-- BEGIN: MAIN CONTENT -->
@@ -43,7 +49,13 @@
             v-if="currentView === 'data'"
             v-model="dataset"
           ></DataViewer>
-          <ChartViewer v-else></ChartViewer>
+          <ChartViewer
+            v-else
+            v-bind:chart-type="chartType"
+            v-bind:dataset="dataset"
+            v-bind:options="chartOptions"
+            v-bind:use-as-labels="useAsLabels"
+          ></ChartViewer>
         </div>
       </div>
     </div>
@@ -87,7 +99,18 @@ export default {
         'Label 1': [ 1.4, 2.3, 6.5, 1.0, 6.2, 0.6 ],
         'Label 2': [ 1, 2, 6, 7, 8, 9, 10 ]
       },
-      chartOptions: {} // This contains all the chart options
+      chartType: 'line',
+      useAsLabels: '', // The dataset to use as labels
+      chartOptions: {
+        title: {
+          text: 'Untitled Chart',
+          position: 'top'
+        },
+        legend: {
+          display: true,
+          position: 'top'
+        }
+      } // This contains all the chart options
     }
   }
 }
