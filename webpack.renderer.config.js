@@ -1,4 +1,4 @@
-const rules = require('./webpack.rules');
+const rules = require('./webpack.rules')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 
@@ -9,7 +9,7 @@ rules.push({
 
 module.exports = {
   module: {
-    rules,
+    rules
   },
   plugins: [
     // Enhanced typescript support (e.g. moves typescript type checking to separate process)
