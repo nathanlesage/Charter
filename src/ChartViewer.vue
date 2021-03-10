@@ -7,6 +7,7 @@
       height="300"
       aria-label="Main Chart Display"
       role="img"
+      style="background-color: white;"
     ></canvas>
   </div>
 </template>
@@ -132,9 +133,13 @@ export default {
         // Scales configuration
         scales: {
           yAxes: [{
+            gridLines: this.options.yAxisGrid,
             ticks: {
               beginAtZero: true
             }
+          }],
+          xAxes: [{
+            gridLines: this.options.xAxisGrid
           }]
         },
         // Generic options we need every time

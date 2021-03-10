@@ -3,7 +3,7 @@
     <div class="window-content">
       <div class="pane-group">
         <!-- BEGIN: SIDEBAR -->
-        <div class="pane-sm sidebar padded">
+        <div class="pane-sm sidebar padded" style="overflow: auto;">
           <!-- BEGIN: VIEW TOGGLE -->
           <div class="btn-group">
             <button
@@ -49,7 +49,7 @@
           ></SidebarOptions>
         </div>
         <!-- BEGIN: MAIN CONTENT -->
-        <div class="pane">
+        <div class="pane" style="background-color: rgb(230, 230, 230);">
           <DataViewer
             v-if="currentView === 'data' && Object.keys(dataset).length > 0"
             v-model="dataset"
@@ -123,13 +123,22 @@ export default {
         legend: {
           display: true,
           position: 'top'
-        }
+        },
+        xAxisGrid: {
+          display: true, // Whether to display them at all
+          drawOnChartArea: true, // Gridlines on the chart
+          drawTicks: true // Gridlines off the charts, so to speak
+        },
+        yAxisGrid: {
+          display: true, // Whether to display them at all
+          drawOnChartArea: true, // Gridlines on the chart
+          drawTicks: true // Gridlines off the charts, so to speak
+        },
       } // This contains all the chart options
     }
   },
   methods: {
     addDataset: function () {
-      console.log('Adding dataset!')
       const num = Object.keys(this.dataset).length + 1
       if (Object.keys(this.dataset).length === 0) {
         Vue.set(this.dataset, `Dataset ${num}`, [0])
