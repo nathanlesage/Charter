@@ -117,6 +117,7 @@ export default {
       useAsLabels: '', // The dataset to use as labels
       chartOptions: {
         padding: 0, // Overall padding of the chart
+        resolution: 0, // The "resolution" (a.k.a. the pixel ratio)
         title: {
           text: 'Untitled Chart',
           position: 'top'

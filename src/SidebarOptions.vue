@@ -55,7 +55,7 @@
     </template>
     <!-- CHART VIEWER OPTIONS -->
     <template v-else-if="currentView === 'chart'">
-      <div class="btn-group padded-vertically">
+      <div class="btn-group padded-vertically-less">
         <button
           class="btn btn-small btn-primary"
           v-on:click="$emit('export')"
@@ -69,6 +69,17 @@
           Copy to clipboard
         </button>
       </div>
+
+      <p><strong>Export resolution</strong></p>
+      <input
+        ref="export-resolution"
+        class="form-control"
+        type="range"
+        min="0"
+        max="10"
+        v-bind:value="value.resolution"
+        v-on:input="setOptions()"
+      >
       <hr>
       <!-- GENERIC SETTINGS APPLICABLE TO ALL CHART TYPES -->
       <div class="form-group">
@@ -101,7 +112,6 @@
         type="range"
         min="0"
         max="200"
-        placeholder="padding"
         v-bind:value="value.padding"
         v-on:input="setOptions()"
       >
@@ -428,6 +438,8 @@ export default {
       }
 
       newValue.padding = parseInt(this.$refs['layout-padding'].value, 10)
+
+      newValue.resolution = parseInt(this.$refs['export-resolution'].value, 10)
 
       newValue.xAxis.gridLines.display = this.$refs['xaxisgrid-display'].checked
       newValue.xAxis.gridLines.drawOnChartArea = this.$refs['xaxisgrid-drawonchartarea'].checked

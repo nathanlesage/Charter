@@ -98,7 +98,15 @@ export default {
         return
       }
 
-      this.chart.options = this.getChartOptions()
+      if (this.chart.options.devicePixelRatio !== this.options.resolution) {
+        // We need to re-create the whole thing
+        this.createChart()
+      } else {
+        // Updating suffices
+        this.chart.options = this.getChartOptions()
+      }
+
+
 
       // Finally, update the chart
       this.chart.update()
@@ -129,6 +137,8 @@ export default {
           display: this.options.title.text.trim() !== '',
           ...this.options.title // Fill in with the rest of the value
         },
+        // Determine the resolution of the chart (necessary for exporting)
+        devicePixelRatio: (this.options.resolution === 0) ? undefined : this.options.resolution,
         layout: {
           padding: {
             left: this.options.padding,
