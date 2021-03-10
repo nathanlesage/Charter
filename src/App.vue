@@ -144,6 +144,7 @@ export default {
           }
         },
         yAxis: {
+          beginAtZero: false,
           label: '',
           gridLines: {
             display: true, // Whether to display them at all

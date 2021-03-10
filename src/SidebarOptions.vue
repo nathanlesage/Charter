@@ -418,6 +418,17 @@
           > Tick labels
         </label>
       </div>
+
+      <div class="checkbox">
+        <label>
+          <input
+            ref="yaxis-beginatzero"
+            type="checkbox"
+            v-bind:checked="value.yAxis.beginAtZero"
+            v-on:input="setOptions()"
+          > Include y=0
+        </label>
+      </div>
     </template>
   </div>
 </template>
@@ -550,6 +561,8 @@ export default {
 
       newValue.xAxis.ticks.display = this.$refs['xaxisgrid-ticklabels'].checked
       newValue.yAxis.ticks.display = this.$refs['yaxisgrid-ticklabels'].checked
+
+      newValue.yAxis.beginAtZero = this.$refs['yaxis-beginatzero'].checked
 
       // Finally emit an update
       this.$emit('input', newValue)

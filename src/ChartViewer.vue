@@ -162,7 +162,7 @@ export default {
             gridLines: this.options.yAxis.gridLines,
             ticks: {
               display: this.options.yAxis.ticks.display,
-              beginAtZero: true
+              beginAtZero: this.options.yAxis.beginAtZero
             }
           }],
           xAxes: [{
