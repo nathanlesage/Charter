@@ -3,6 +3,12 @@
     <!-- DATA VIEWER OPTIONS -->
     <template v-if="currentView === 'data'">
       <p>
+        <strong>Welcome to Charter!</strong> Charter is a small online tool that
+        enables you to create small charts quick'n'dirty. That means: No hassle
+        with the Excel and no need to spin up your data science IDE. Just drop
+        in a few numbers, tweak the chart, and save it on your computer.
+      </p>
+      <p>
         Here you can load and preview a dataset to get a first impression of
         what it will look like. Charter supports loading TSV and CSV files. As
         the tool is meant to be simple, make sure to only load number sets and

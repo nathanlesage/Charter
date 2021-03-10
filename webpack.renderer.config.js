@@ -1,3 +1,4 @@
+const path = require('path')
 const rules = require('./webpack.rules')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
@@ -8,6 +9,9 @@ rules.push({
 });
 
 module.exports = {
+  entry: {
+    app: path.resolve(__dirname, './src/renderer.ts')
+  },
   module: {
     rules
   },
@@ -20,5 +24,5 @@ module.exports = {
   ],
   resolve: {
     extensions: [ '.js', '.ts', '.vue', '.css' ]
-  },
+  }
 };
