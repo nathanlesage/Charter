@@ -10,6 +10,7 @@
           <input
             type="text"
             v-bind:value="item"
+            v-on:change="renameDataset(labelIndex, $event.target.value)"
           >
           <!-- Enable removal of single datasets -->
           <span
@@ -112,12 +113,27 @@ export default {
         newValue[dataset] = this.value[dataset].map(elem => elem)
       }
 
-      // Now we just need to find the correct dataset.
-      // NOTE: We prepend a row number column before every row. The labels
-      // variable already includes that, so col is the correct index. row,
-      // however, needs to be offset by minus 1.
+      // Now we just need to find the correct dataset. Charter supports two basic
+      // types of input: Strings and numbers.
       const dataset = this.labels[col]
-      newValue[dataset][row - 1] = parseFloat(value) // TODO: Also allow strings??
+      if (/^[\d\.,]+$/.test(value)) {
+        newValue[dataset][row] = parseFloat(value)
+      } else {
+        newValue[dataset][row] = value
+      }
+
+      this.$emit('input', newValue)
+    },
+    renameDataset: function (labelID, newName) {
+      const oldName = this.labels[labelID]
+      const newValue = {}
+      for (const dataset in this.value) {
+        if (dataset === oldName) {
+          newValue[newName] = this.value[oldName].map(elem => elem)
+        } else {
+          newValue[dataset] = this.value[dataset].map(elem => elem)
+        }
+      }
 
       this.$emit('input', newValue)
     },
