@@ -38,8 +38,8 @@ export default {
       type: String,
       default: ''
     },
-    // Custom colours for the data
-    colours: {
+    // Custom settings for each dataset
+    datasetOptions: {
       type: Object,
       default: function () { return {} }
     }
@@ -61,16 +61,19 @@ export default {
           continue // Obviously don't use *THAT* column
         }
 
-        const color = this.colours[labels[i]]
+        const options = this.datasetOptions[labels[i]]
 
         chartDatasets.push({
           label: labels[i],
           data: data[i],
-          borderColor: (color !== undefined) ? color.toString(1) : '',
-          backgroundColor: (color !== undefined && this.chartType === 'bar') ? color.toString(0.8): '',
-          pointBackgroundColor: (color !== undefined) ? color.toString(1) : '',
-          fill: false,
-          borderWidth: 2
+          borderColor: (options.colour !== undefined) ? options.colour.toString(1) : '',
+          backgroundColor: (options.colour !== undefined) ? options.colour.toString(0.6): '',
+          pointBackgroundColor: (options.colour !== undefined) ? options.colour.toString(1) : '',
+          pointStyle: options.pointStyle,
+          pointRadius: options.pointRadius,
+          tension: options.tension,
+          fill: options.fill,
+          borderWidth: options.borderWidth
         })
       }
 
@@ -175,7 +178,16 @@ export default {
         },
         // Generic options we need every time
         responsive: true,
-        maintainAspectRatio: false
+        maintainAspectRatio: false,
+        // Tooltips should be fastly visible, b/c they won't be exported either way
+        tooltips: {
+          mode: 'index',
+          intersect: false,
+        },
+        hover: {
+          mode: 'index',
+          intersect: false
+        },
       }
     },
     getBase64: function () {

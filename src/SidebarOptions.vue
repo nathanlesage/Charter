@@ -217,20 +217,92 @@
         </button>
       </div> <!-- END chart type selector -->
 
-      <!-- Let the user assign a color to each dataset -->
-      <p><strong>Colours</strong></p>
-      <div
-        v-for="color, dataset in datasetColours"
-        v-bind:key="dataset"
-        style="display: flex; justify-content: space-between; align-items: center;"
+      <!-- Let the user finetune the options for each dataset -->
+      <p><strong>Dataset Settings</strong></p>
+      <select
+        class="form-control"
+        v-bind:value="activeDataset"
+        v-on:input="activeDataset = $event.target.value"
       >
-        {{ dataset }}
-        <input
-          type="color"
-          v-bind:value="'#' + color.toHex()"
-          v-on:input="updateColor(color, $event.target.value)"
+        <option
+          v-for="dataset, key, index in datasetOptions"
+          v-bind:key="index"
+          v-bind:value="key"
         >
-      </div>
+          {{ key }}
+        </option>
+      </select>
+      <template v-if="datasetOptions[activeDataset] !== undefined">
+        <div class="padded-vertically" style="display: flex; justify-content: space-between; align-items: center;">
+          <label>Colour</label>
+          <input
+            type="color"
+            v-bind:value="'#' + datasetOptions[activeDataset].colour.toHex()"
+            v-on:input="updateColour(datasetOptions[activeDataset].colour, $event.target.value)"
+          >
+        </div>
+
+        <p>Point style</p>
+        <select
+          class="form-control"
+          v-bind:value="datasetOptions[activeDataset].pointStyle"
+          v-on:input="datasetOptions[activeDataset].pointStyle = $event.target.value"
+        >
+          <option value="circle">Circle</option>
+          <option value="cross">Cross</option>
+          <option value="crossRot">Rotated Cross</option>
+          <option value="dash">Dash</option>
+          <option value="line">Line</option>
+          <option value="rect">Rectangle</option>
+          <option value="rectRounded">Rounded Rectangle</option>
+          <option value="rectRot">Rotated Rectangle</option>
+          <option value="star">Star</option>
+          <option value="triangle">Triangle</option>
+        </select>
+
+        <label>Point size</label>
+        <input
+          type="range"
+          class="form-control"
+          min="0"
+          max="20"
+          v-bind:value="datasetOptions[activeDataset].pointRadius"
+          v-on:input="datasetOptions[activeDataset].pointRadius = parseInt($event.target.value)"
+        >
+
+        <label>Curvedness</label>
+        <input
+          type="range"
+          class="form-control"
+          min="0.0"
+          max="1.0"
+          step="0.1"
+          v-bind:value="datasetOptions[activeDataset].tension"
+          v-on:input="datasetOptions[activeDataset].tension = parseFloat($event.target.value)"
+        >
+
+        <label>Line Width</label>
+        <input
+          type="range"
+          class="form-control"
+          min="0"
+          max="10"
+          v-bind:value="datasetOptions[activeDataset].borderWidth"
+          v-on:input="datasetOptions[activeDataset].borderWidth = parseInt($event.target.value)"
+        >
+
+        <div class="checkbox">
+          <label>
+            <input
+              type="checkbox"
+              v-bind:checked="datasetOptions[activeDataset].fill"
+              v-on:input="datasetOptions[activeDataset].fill = $event.target.checked"
+            > Fill area under curve
+          </label>
+        </div>
+
+        <hr>
+      </template>
 
       <!-- GRID LINE CONFIGURATION -->
       <p><strong>x-Axis</strong></p>
@@ -376,7 +448,11 @@ export default {
   },
   data: function () {
     return {
-      datasetColours: {} // Holds a colour for each dataset, split up in r, g, b, and a
+      // This holds the options for the dataset. We will be managing these in
+      // this component rather than the app because this way the dataflow is
+      // simpler (as it doesn't have to go back and forth everytime).
+      datasetOptions: {},
+      activeDataset: '' // Holds the name of the active dataset
     }
   },
   computed: {
@@ -390,11 +466,11 @@ export default {
   },
   watch: {
     dataset: function () {
-      this.resetColours()
+      this.sanitiseDatasetOptions()
     }
   },
   mounted: function () {
-    this.resetColours()
+    this.sanitiseDatasetOptions()
   },
   methods: {
     handleFileUpload: function (event) {
@@ -415,23 +491,28 @@ export default {
 
       reader.readAsText(file)
     },
-    resetColours: function () {
-      // Make sure to produce new colours as applicable ...
+    sanitiseDatasetOptions: function () {
+      // Make sure to produce new option sets as applicable ...
       for (const key in this.dataset) {
-        if (this.datasetColours[key] === undefined) {
-          Vue.set(this.datasetColours, key, this.randomColour())
+        if (this.datasetOptions[key] === undefined) {
+          Vue.set(this.datasetOptions, key, this.initOptions())
         }
       }
 
       // ... and remove non-existing
-      for (const key in this.datasetColours) {
+      for (const key in this.datasetOptions) {
         if (this.dataset[key] === undefined) {
-          Vue.delete(this.datasetColours, key)
+          Vue.delete(this.datasetOptions, key)
         }
       }
 
+      if (this.dataset[this.activeDataset] === undefined) {
+        // Make sure we always have a valid pointer to a correct dataset
+        this.activeDataset = Object.keys(this.dataset)[0]
+      }
+
       // Afterwards, emit an event
-      this.$emit('colours', this.datasetColours)
+      this.$emit('datasetoptions', this.datasetOptions)
     },
     setOptions: function () {
       const newValue = Object.assign({}, this.value)
@@ -516,8 +597,10 @@ export default {
       // sane again
       this.$emit('useaslabels', labelArray[0])
     },
-    randomColour: function () {
-      return {
+    initOptions: function () {
+      const options = {}
+
+      options.colour = {
         r: Math.random() * 255,
         g: Math.random() * 255,
         b: Math.random() * 255,
@@ -529,17 +612,27 @@ export default {
           }
           return `rgba(${this.r}, ${this.g}, ${this.b}, ${alpha})`
         },
+        // Also to hex
         toHex: function () { return rgbHex(this.r, this.g, this.b) }
       }
+
+      options.pointStyle = 'circle'
+
+      options.tension = 0.4 // Determines the amount of curviness
+      options.pointRadius = 4 // 0 = disable
+      options.fill = false // Whether or not the AUC should be filled
+      options.borderWidth = 3
+
+      return options
     },
-    updateColor: function (color, hexVal) {
+    updateColour: function (color, hexVal) {
       const cols = hexRgb(hexVal)
       color.r = cols.red
       color.g = cols.green
       color.b = cols.blue
 
       // Afterwards, emit an event
-      this.$emit('colours', this.datasetColours)
+      this.$emit('datasetoptions', this.datasetOptions)
     }
   }
 }

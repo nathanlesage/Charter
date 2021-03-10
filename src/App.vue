@@ -41,7 +41,7 @@
             v-on:charttype="chartType = $event"
             v-on:dataset="dataset = $event"
             v-on:useaslabels="useAsLabels = $event"
-            v-on:colours="colours = $event"
+            v-on:datasetoptions="datasetOptions = $event"
             v-on:addset="addDataset()"
             v-on:addrow="addRow()"
             v-on:export="exportChart(false)"
@@ -65,7 +65,7 @@
             ref="chart-viewer"
             v-bind:chart-type="chartType"
             v-bind:dataset="dataset"
-            v-bind:colours="colours"
+            v-bind:dataset-options="datasetOptions"
             v-bind:options="chartOptions"
             v-bind:use-as-labels="useAsLabels"
           ></ChartViewer>
@@ -109,6 +109,8 @@ export default {
     return {
       currentView: 'data', // Two views: data and chart
       colours: {}, // Contains user-defined colours, solely generated in the sidebar
+      // Dataset options are customisations for each single dataset that is loaded
+      datasetOptions: {},
       // This contains the overall dataset. As ChartJS allows for labels and
       // generally accepts simple number arrays, we will for now run with a
       // dictionary.
