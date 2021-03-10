@@ -72,6 +72,10 @@
         </div>
       </div>
     </div>
+
+    <footer class="toolbar toolbar-footer">
+      <h1 class="title">Charter | &copy; 2021 Hendrik Erz | Powered by <a href="https://vuejs.org/" rel="nofollow" target="_blank">Vue.js</a> and <a href="https://www.chartjs.org/" rel="nofollow" target="_blank">Chart.js</a> | Use at your own risk ❤️</h1>
+    </footer>
   </div>
 </template>
 
