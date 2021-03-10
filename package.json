@@ -15,6 +15,9 @@
   "dependencies": {
     "@electron-forge/cli": "^6.0.0-beta.54"
   },
+  "config": {
+    "forge": "./forge.config.js"
+  },
   "devDependencies": {
     "@electron-forge/plugin-webpack": "^6.0.0-beta.54",
     "@typescript-eslint/eslint-plugin": "^4.17.0",
@@ -27,6 +30,8 @@
     "style-loader": "^2.0.0",
     "ts-loader": "^8.0.17",
     "typescript": "^4.2.3",
-    "vue-loader": "^15.9.6"
+    "vue": "^2.6.12",
+    "vue-loader": "^15.9.6",
+    "vue-template-compiler": "^2.6.12"
   }
 }
