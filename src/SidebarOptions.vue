@@ -55,6 +55,20 @@
     </template>
     <!-- CHART VIEWER OPTIONS -->
     <template v-else-if="currentView === 'chart'">
+      <div class="btn-group padded-vertically">
+        <button
+          class="btn btn-small btn-primary"
+          v-on:click="$emit('export')"
+        >
+          Save chart
+        </button>
+        <button
+          class="btn btn-small btn-default"
+          v-on:click="$emit('copy')"
+        >
+          Copy to clipboard
+        </button>
+      </div>
       <!-- GENERIC SETTINGS APPLICABLE TO ALL CHART TYPES -->
       <div class="form-group">
         <label>Chart Title and Position</label>

@@ -44,6 +44,8 @@
             v-on:colours="colours = $event"
             v-on:addset="addDataset()"
             v-on:addrow="addRow()"
+            v-on:export="exportChart(false)"
+            v-on:copy="exportChart(true)"
           ></SidebarOptions>
         </div>
         <!-- BEGIN: MAIN CONTENT -->
@@ -60,6 +62,7 @@
           </template>
           <ChartViewer
             v-else
+            ref="chart-viewer"
             v-bind:chart-type="chartType"
             v-bind:dataset="dataset"
             v-bind:colours="colours"
@@ -77,6 +80,8 @@ import Vue from 'vue'
 import DataViewer from './DataViewer'
 import ChartViewer from './ChartViewer'
 import SidebarOptions from './SidebarOptions'
+import b64toBlob from 'b64-to-blob'
+import sanitize from 'sanitize-filename'
 
 /**
  * A WORD ON THE DATA STRUCTURE AND HANDLING
@@ -140,6 +145,27 @@ export default {
     addRow: function () {
       for (const key of Object.keys(this.dataset)) {
         this.dataset[key].push(0)
+      }
+    },
+    exportChart: function (copy = false) {
+      // First, get the base64 data
+      const b64 = this.$refs['chart-viewer'].getBase64()
+
+      // Then prepare the file and basically force the browser to download the
+      // image data from an arbitrary anchor element.
+      if (copy) {
+        // Copy to clipboard. We have to remove the data:image/png;base64,-part
+        // from the string beforehand. Let's do this oldschool.
+        const blob = b64toBlob(b64.substr(22), 'image/png')
+        const item = new ClipboardItem({ 'image/png': blob })
+        navigator.clipboard.write([item])
+      } else {
+        // Save to disk
+        const filename = sanitize(this.chartOptions.title.text)
+        const download = document.createElement('a')
+        download.href = b64
+        download.download = filename + '.png'
+        download.click()
       }
     }
   }

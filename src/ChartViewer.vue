@@ -141,6 +141,13 @@ export default {
         responsive: true,
         maintainAspectRatio: false
       }
+    },
+    getBase64: function () {
+      if (this.chart === null) {
+        return undefined
+      }
+
+      return this.chart.toBase64Image()
     }
   }
 }
