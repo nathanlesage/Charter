@@ -13,7 +13,8 @@
     "lint": "eslint --ext js,ts,vue src"
   },
   "dependencies": {
-    "@electron-forge/cli": "^6.0.0-beta.54"
+    "@electron-forge/cli": "^6.0.0-beta.54",
+    "chart.js": "^2.9.4"
   },
   "config": {
     "forge": "./forge.config.js"
@@ -26,6 +27,7 @@
     "electron": "^12.0.0",
     "eslint": "^7.21.0",
     "eslint-plugin-import": "^2.22.1",
+    "file-loader": "^6.2.0",
     "fork-ts-checker-webpack-plugin": "^6.1.1",
     "style-loader": "^2.0.0",
     "ts-loader": "^8.0.17",
