@@ -39,7 +39,10 @@
         </div>
         <!-- BEGIN: MAIN CONTENT -->
         <div class="pane">
-          <DataViewer v-if="currentView === 'data'"></DataViewer>
+          <DataViewer
+            v-if="currentView === 'data'"
+            v-model="dataset"
+          ></DataViewer>
           <ChartViewer v-else></ChartViewer>
         </div>
       </div>
@@ -77,7 +80,13 @@ export default {
   data: function () {
     return {
       currentView: 'data', // Two views: data and chart
-      dataset: {}, // This contains the overall dataset
+      // This contains the overall dataset. As ChartJS allows for labels and
+      // generally accepts simple number arrays, we will for now run with a
+      // dictionary.
+      dataset: {
+        'Label 1': [ 1.4, 2.3, 6.5, 1.0, 6.2, 0.6 ],
+        'Label 2': [ 1, 2, 6, 7, 8, 9, 10 ]
+      },
       chartOptions: {} // This contains all the chart options
     }
   }

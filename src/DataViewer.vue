@@ -1,23 +1,119 @@
 <template>
   <table class="data-table">
     <tr>
-      <th><input type="text" value="One"></th>
-      <th><input type="text" value="Two"></th>
-      <th><input type="text" value="Three"></th>
-      <th><input type="text" value="Four"></th>
+      <th
+        v-for="item, labelIndex in labels"
+        v-bind:key="labelIndex"
+        v-bind:class="{ 'row-number': labelIndex === 0 }"
+      >
+        <input
+          v-if="labelIndex > 0"
+          type="text"
+          v-bind:value="item"
+        >
+        <span v-else class="row-number">{{ item }}</span>
+      </th>
     </tr>
-    <tr>
-      <td><input type="text" value="One"></td>
-      <td><input type="text" value="Two"></td>
-      <td><input type="text" value="Three"></td>
-      <td><input type="text" value="Four"></td>
+    <tr v-for="row, rowIndex in dataRows" v-bind:key="rowIndex">
+      <td
+        v-for="column, colIndex in row"
+        v-bind:key="colIndex"
+        v-bind:class="{ 'row-number': colIndex === 0 }"
+      >
+        <input
+          v-if="colIndex > 0"
+          type="text"
+          v-bind:value="column"
+          v-on:change="handleInput(rowIndex, colIndex, $event.target.value)"
+        >
+        <span v-else>{{ column }}</span>
+      </td>
     </tr>
   </table>
 </template>
 
 <script>
 export default {
-    name: 'DataViewer'
+  name: 'DataViewer',
+  props: {
+    // This will be the modeled dataset; we have to emit changes.
+    value: {
+      type: Object,
+      default: function () { return {} }
+    }
+  },
+  data: function () {
+    return {}
+  },
+  computed: {
+    labels: function () {
+      return [''].concat(Object.keys(this.value))
+    },
+    dataRows: function () {
+      // Because we have a different format in our data than the required HTML
+      // for a table, we need to reshape the dataset here.
+      const columns = Object.values(this.value)
+      const rows = []
+      // Now we have a two-dimensional array which we basically have to pivot,
+      // that is: every i-th element of every column goes into every i-th row.
+      for (const column of columns) {
+        for (let rowIndex = 0; rowIndex < column.length; rowIndex++) {
+          if (rowIndex >= rows.length) {
+            rows.push([])
+          }
+          rows[rowIndex].push(column[rowIndex])
+        }
+      }
+
+      // Normalise the rows now to ensure we still have a matrix
+      let max = 0
+      for (const row of rows) {
+        if (row.length > max) {
+          max = row.length
+        }
+      }
+
+      for (let i = 0; i < rows.length; i++) {
+        while (rows[i].length < max) {
+          // We pad with zeros
+          rows[i].push(0) // TODO: Maybe also empty strings? We need a concept of "NaN"
+        }
+
+        // In the end, no matter what we have, prepend a row number
+        rows[i].unshift(i + 1)
+      }
+
+      return rows
+    }
+  },
+  methods: {
+    handleInput: function (row, col, value) {
+      // A data cell has been changed. Here we need to take the passed value,
+      // modify the correct object, and emit an input event to the root.
+      // NOTE that row indicates the index within a dataset, and col indicates
+      // the dataset itself!
+      const newValue = {}
+
+      // First make sure we have a valid value
+      if (value.trim() === '') {
+        value = 0
+      }
+
+      // Deep clone our data
+      for (const dataset in this.value) {
+        newValue[dataset] = this.value[dataset].map(elem => elem)
+      }
+
+      // Now we just need to find the correct dataset.
+      // NOTE: We prepend a row number column before every row. The labels
+      // variable already includes that, so col is the correct index. row,
+      // however, needs to be offset by minus 1.
+      const dataset = this.labels[col]
+      newValue[dataset][row - 1] = parseFloat(value) // TODO: Also allow strings??
+
+      this.$emit('input', newValue)
+    }
+  }
 }
 </script>
 
@@ -35,6 +131,7 @@ table.data-table td input {
   margin: 0;
   padding: 4px;
   width: 100%;
+  text-align: right;
 }
 
 table.data-table th input {
@@ -44,5 +141,12 @@ table.data-table th input {
   width: 100%;
   font-weight: bold;
   background-color: rgb(230, 230, 230);
+}
+
+table.data-table th.row-number, table.data-table td.row-number {
+  padding: 4px;
+  background-color: rgb(230, 230, 230);
+  text-align: right;
+  width: 25px; /* Make sure the row numbers look nice */
 }
 </style>
