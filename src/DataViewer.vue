@@ -6,11 +6,19 @@
         v-bind:key="labelIndex"
         v-bind:class="{ 'row-number': labelIndex === 0 }"
       >
-        <input
-          v-if="labelIndex > 0"
-          type="text"
-          v-bind:value="item"
-        >
+        <div v-if="labelIndex > 0" style="position: relative">
+          <input
+            type="text"
+            v-bind:value="item"
+          >
+          <!-- Enable removal of single datasets -->
+          <span
+            class="icon icon-cancel"
+            style="position: absolute; right:10px; top: 5px; cursor: pointer"
+            v-bind:title="'Remove dataset ' + item"
+            v-on:click="removeDataset(labelIndex)"
+          ></span>
+        </div>
         <span v-else class="row-number">{{ item }}</span>
       </th>
     </tr>
@@ -110,6 +118,20 @@ export default {
       // however, needs to be offset by minus 1.
       const dataset = this.labels[col]
       newValue[dataset][row - 1] = parseFloat(value) // TODO: Also allow strings??
+
+      this.$emit('input', newValue)
+    },
+    removeDataset: function (labelID) {
+      // NOTE: labelID is offset by one due to the row numbers, but this.label
+      // also includes the padding.
+      const dataToRemove = this.labels[labelID]
+      const newValue = {}
+      for (const dataset in this.value) {
+        // Deep clone the data but skip the dataset to remove
+        if (dataset !== dataToRemove) {
+          newValue[dataset] = this.value[dataset].map(elem => elem)
+        }
+      }
 
       this.$emit('input', newValue)
     }
