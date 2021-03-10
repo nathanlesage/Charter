@@ -68,6 +68,7 @@ export default {
           data: data[i],
           borderColor: (color !== undefined) ? color.toString(1) : '',
           backgroundColor: (color !== undefined && this.chartType === 'bar') ? color.toString(0.8): '',
+          pointBackgroundColor: (color !== undefined) ? color.toString(1) : '',
           fill: false,
           borderWidth: 2
         })

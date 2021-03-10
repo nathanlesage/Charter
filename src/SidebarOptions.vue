@@ -17,7 +17,12 @@
           <span class="icon icon-list"></span>
           Load file
         </button>
-      <input type="file" ref="file-input" style="display: none;">
+      <input
+        type="file"
+        ref="file-input"
+        style="display: none;"
+        v-on:change="handleFileUpload"
+      >
 
       <div class="btn-group padded-vertically">
         <button
@@ -217,7 +222,7 @@
       <div
         v-for="color, dataset in datasetColours"
         v-bind:key="dataset"
-        style="display: flex; justify-content: space-between;"
+        style="display: flex; justify-content: space-between; align-items: center;"
       >
         {{ dataset }}
         <input
@@ -340,6 +345,7 @@
 </template>
 
 <script>
+import Vue from 'vue'
 import rgbHex from 'rgb-hex'
 import hexRgb from 'hex-rgb'
 
@@ -384,26 +390,14 @@ export default {
   },
   watch: {
     dataset: function () {
-      // Make sure to produce new colours as applicable
-      for (const key in this.dataset) {
-        if (this.datasetColours[key] === undefined) {
-          this.datasetColours[key] = this.randomColour()
-        }
-      }
-
-      // ... and remove non-existing
-      for (const key in this.datasetColours) {
-        if (this.dataset[key] === undefined) {
-          delete this.datasetColours[key]
-        }
-      }
-
-      // Afterwards, emit an event
-      this.$emit('colours', this.datasetColours)
+      this.resetColours()
     }
   },
   mounted: function () {
-    this.$refs['file-input'].addEventListener('change', (event) => {
+    this.resetColours()
+  },
+  methods: {
+    handleFileUpload: function (event) {
       const file = event.target.files[0]
 
       if (!file) {
@@ -420,9 +414,25 @@ export default {
       }
 
       reader.readAsText(file)
-    }, false)
-  },
-  methods: {
+    },
+    resetColours: function () {
+      // Make sure to produce new colours as applicable ...
+      for (const key in this.dataset) {
+        if (this.datasetColours[key] === undefined) {
+          Vue.set(this.datasetColours, key, this.randomColour())
+        }
+      }
+
+      // ... and remove non-existing
+      for (const key in this.datasetColours) {
+        if (this.dataset[key] === undefined) {
+          Vue.delete(this.datasetColours, key)
+        }
+      }
+
+      // Afterwards, emit an event
+      this.$emit('colours', this.datasetColours)
+    },
     setOptions: function () {
       const newValue = Object.assign({}, this.value)
       newValue.title.text = this.$refs['title-text'].value
