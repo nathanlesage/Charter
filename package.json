@@ -1,0 +1,32 @@
+{
+  "name": "charter",
+  "productName": "Charter",
+  "version": "0.0.1",
+  "description": "A quick and dirty chart creator",
+  "main": ".webpack/main",
+  "author": "Hendrik Erz <hendrik@zettlr.com>",
+  "license": "GPL-3.0-only",
+  "private": false,
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "lint": "eslint --ext js,ts,vue src"
+  },
+  "dependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.54"
+  },
+  "devDependencies": {
+    "@electron-forge/plugin-webpack": "^6.0.0-beta.54",
+    "@typescript-eslint/eslint-plugin": "^4.17.0",
+    "@typescript-eslint/parser": "^4.17.0",
+    "css-loader": "^5.1.1",
+    "electron": "^12.0.0",
+    "eslint": "^7.21.0",
+    "eslint-plugin-import": "^2.22.1",
+    "fork-ts-checker-webpack-plugin": "^6.1.1",
+    "style-loader": "^2.0.0",
+    "ts-loader": "^8.0.17",
+    "typescript": "^4.2.3",
+    "vue-loader": "^15.9.6"
+  }
+}
