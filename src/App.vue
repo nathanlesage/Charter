@@ -116,6 +116,7 @@ export default {
       chartType: 'line',
       useAsLabels: '', // The dataset to use as labels
       chartOptions: {
+        padding: 0, // Overall padding of the chart
         title: {
           text: 'Untitled Chart',
           position: 'top'
@@ -124,16 +125,28 @@ export default {
           display: true,
           position: 'top'
         },
-        xAxisGrid: {
-          display: true, // Whether to display them at all
-          drawOnChartArea: true, // Gridlines on the chart
-          drawTicks: true // Gridlines off the charts, so to speak
+        xAxis: {
+          label: '',
+          gridLines: {
+            display: true, // Whether to display them at all
+            drawOnChartArea: true, // Gridlines on the chart
+            drawTicks: true // Gridlines off the charts, so to speak
+          },
+          ticks: {
+            display: true // Whether to show tick labels
+          }
         },
-        yAxisGrid: {
-          display: true, // Whether to display them at all
-          drawOnChartArea: true, // Gridlines on the chart
-          drawTicks: true // Gridlines off the charts, so to speak
-        },
+        yAxis: {
+          label: '',
+          gridLines: {
+            display: true, // Whether to display them at all
+            drawOnChartArea: true, // Gridlines on the chart
+            drawTicks: true // Gridlines off the charts, so to speak
+          },
+          ticks: {
+            display: true // Whether to show tick labels
+          }
+        }
       } // This contains all the chart options
     }
   },

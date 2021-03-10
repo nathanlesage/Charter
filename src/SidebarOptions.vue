@@ -69,6 +69,7 @@
           Copy to clipboard
         </button>
       </div>
+      <hr>
       <!-- GENERIC SETTINGS APPLICABLE TO ALL CHART TYPES -->
       <div class="form-group">
         <label><strong>Chart Title and Position</strong></label>
@@ -93,22 +94,26 @@
         <option value="bottom">Bottom</option>
       </select>
 
-      <div class="checkbox">
-        <label>
-          <input
-            ref="legend-display"
-            type="checkbox"
-            v-bind:checked="value.legend.display"
-            v-on:input="setOptions()"
-          > Display legend
-        </label>
-      </div>
+      <p><strong>Chart spacing</strong></p>
+      <input
+        ref="layout-padding"
+        class="form-control"
+        type="range"
+        min="0"
+        max="200"
+        placeholder="padding"
+        v-bind:value="value.padding"
+        v-on:input="setOptions()"
+      >
+
+      <p><strong>Chart legend</strong></p>
       <select
         ref="legend-position"
         class="form-control"
-        v-bind:value="value.legend.position"
+        v-bind:value="legendValuePosition"
         v-on:input="setOptions()"
       >
+        <option value="none">Hide legend</option>
         <option value="top">Top</option>
         <option value="left">Left</option>
         <option value="right">Right</option>
@@ -213,14 +218,22 @@
       </div>
 
       <!-- GRID LINE CONFIGURATION -->
-      <p><strong>x-Axis Grid</strong></p>
+      <p><strong>x-Axis</strong></p>
+
+      <input
+        ref="xaxis-label"
+        type="text"
+        placeholder="Axis label"
+        class="form-control"
+        v-on:input="setOptions()"
+      >
 
       <div class="checkbox">
         <label>
           <input
             ref="xaxisgrid-display"
             type="checkbox"
-            v-bind:checked="value.xAxisGrid.display"
+            v-bind:checked="value.xAxis.gridLines.display"
             v-on:input="setOptions()"
           > Display the x-axis grid
         </label>
@@ -231,7 +244,7 @@
           <input
             ref="xaxisgrid-drawonchartarea"
             type="checkbox"
-            v-bind:checked="value.xAxisGrid.drawOnChartArea"
+            v-bind:checked="value.xAxis.gridLines.drawOnChartArea"
             v-on:input="setOptions()"
           > Gridlines
         </label>
@@ -242,20 +255,39 @@
           <input
             ref="xaxisgrid-drawticks"
             type="checkbox"
-            v-bind:checked="value.xAxisGrid.drawTicks"
+            v-bind:checked="value.xAxis.gridLines.drawTicks"
             v-on:input="setOptions()"
-          > Ticks
+          > Tick lines
         </label>
       </div>
 
-      <p><strong>y-Axis Grid</strong></p>
+      <div class="checkbox">
+        <label>
+          <input
+            ref="xaxisgrid-ticklabels"
+            type="checkbox"
+            v-bind:checked="value.yAxis.ticks.display"
+            v-on:input="setOptions()"
+          > Tick labels
+        </label>
+      </div>
+
+      <p><strong>y-Axis</strong></p>
+
+      <input
+        ref="yaxis-label"
+        type="text"
+        placeholder="Axis label"
+        class="form-control"
+        v-on:input="setOptions()"
+      >
 
       <div class="checkbox">
         <label>
           <input
             ref="yaxisgrid-display"
             type="checkbox"
-            v-bind:checked="value.yAxisGrid.display"
+            v-bind:checked="value.yAxis.gridLines.display"
             v-on:input="setOptions()"
           > Display the x-axis grid
         </label>
@@ -266,7 +298,7 @@
           <input
             ref="yaxisgrid-drawonchartarea"
             type="checkbox"
-            v-bind:checked="value.yAxisGrid.drawOnChartArea"
+            v-bind:checked="value.yAxis.gridLines.drawOnChartArea"
             v-on:input="setOptions()"
           > Gridlines
         </label>
@@ -277,9 +309,20 @@
           <input
             ref="yaxisgrid-drawticks"
             type="checkbox"
-            v-bind:checked="value.yAxisGrid.drawTicks"
+            v-bind:checked="value.yAxis.gridLines.drawTicks"
             v-on:input="setOptions()"
           > Ticks
+        </label>
+      </div>
+
+      <div class="checkbox">
+        <label>
+          <input
+            ref="yaxisgrid-ticklabels"
+            type="checkbox"
+            v-bind:checked="value.yAxis.ticks.display"
+            v-on:input="setOptions()"
+          > Tick labels
         </label>
       </div>
     </template>
@@ -318,6 +361,15 @@ export default {
   data: function () {
     return {
       datasetColours: {} // Holds a colour for each dataset, split up in r, g, b, and a
+    }
+  },
+  computed: {
+    legendValuePosition: function () {
+      if (!this.value.legend.display) {
+        return 'none' // Merge display + position into one option
+      }
+      
+      return this.value.legend.position
     }
   },
   watch: {
@@ -366,15 +418,29 @@ export default {
       newValue.title.text = this.$refs['title-text'].value
       newValue.title.position = this.$refs['title-position'].value
 
-      newValue.legend.display = this.$refs['legend-display'].checked
-      newValue.legend.position = this.$refs['legend-position'].value
+      // We're merging two options into one here
+      if (this.$refs['legend-position'].value === 'none') {
+        newValue.legend.display = false
+        newValue.legend.position = 'top'
+      } else {
+        newValue.legend.display = true
+        newValue.legend.position = this.$refs['legend-position'].value
+      }
 
-      newValue.xAxisGrid.display = this.$refs['xaxisgrid-display'].checked
-      newValue.xAxisGrid.drawOnChartArea = this.$refs['xaxisgrid-drawonchartarea'].checked
-      newValue.xAxisGrid.drawTicks = this.$refs['xaxisgrid-drawticks'].checked
-      newValue.yAxisGrid.display = this.$refs['yaxisgrid-display'].checked
-      newValue.yAxisGrid.drawOnChartArea = this.$refs['yaxisgrid-drawonchartarea'].checked
-      newValue.yAxisGrid.drawTicks = this.$refs['yaxisgrid-drawticks'].checked
+      newValue.padding = parseInt(this.$refs['layout-padding'].value, 10)
+
+      newValue.xAxis.gridLines.display = this.$refs['xaxisgrid-display'].checked
+      newValue.xAxis.gridLines.drawOnChartArea = this.$refs['xaxisgrid-drawonchartarea'].checked
+      newValue.xAxis.gridLines.drawTicks = this.$refs['xaxisgrid-drawticks'].checked
+      newValue.yAxis.gridLines.display = this.$refs['yaxisgrid-display'].checked
+      newValue.yAxis.gridLines.drawOnChartArea = this.$refs['yaxisgrid-drawonchartarea'].checked
+      newValue.yAxis.gridLines.drawTicks = this.$refs['yaxisgrid-drawticks'].checked
+
+      newValue.xAxis.label = this.$refs['xaxis-label'].value
+      newValue.yAxis.label = this.$refs['yaxis-label'].value
+
+      newValue.xAxis.ticks.display = this.$refs['xaxisgrid-ticklabels'].checked
+      newValue.yAxis.ticks.display = this.$refs['yaxisgrid-ticklabels'].checked
 
       // Finally emit an update
       this.$emit('input', newValue)

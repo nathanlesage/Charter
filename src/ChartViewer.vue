@@ -129,17 +129,37 @@ export default {
           display: this.options.title.text.trim() !== '',
           ...this.options.title // Fill in with the rest of the value
         },
+        layout: {
+          padding: {
+            left: this.options.padding,
+            right: this.options.padding,
+            top: this.options.padding,
+            bottom: this.options.padding
+          },
+        },
         legend: this.options.legend,
         // Scales configuration
         scales: {
           yAxes: [{
-            gridLines: this.options.yAxisGrid,
+            scaleLabel: {
+              display: this.options.yAxis.label.trim() !== '',
+              labelString: this.options.yAxis.label
+            },
+            gridLines: this.options.yAxis.gridLines,
             ticks: {
+              display: this.options.yAxis.ticks.display,
               beginAtZero: true
             }
           }],
           xAxes: [{
-            gridLines: this.options.xAxisGrid
+            scaleLabel: {
+              display: this.options.xAxis.label.trim() !== '',
+              labelString: this.options.xAxis.label
+            },
+            gridLines: this.options.xAxis.gridLines,
+            ticks: {
+              display: this.options.xAxis.ticks.display
+            }
           }]
         },
         // Generic options we need every time
