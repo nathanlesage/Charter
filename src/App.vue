@@ -41,18 +41,28 @@
             v-on:charttype="chartType = $event"
             v-on:dataset="dataset = $event"
             v-on:useaslabels="useAsLabels = $event"
+            v-on:colours="colours = $event"
+            v-on:addset="addDataset()"
+            v-on:addrow="addRow()"
           ></SidebarOptions>
         </div>
         <!-- BEGIN: MAIN CONTENT -->
         <div class="pane">
           <DataViewer
-            v-if="currentView === 'data'"
+            v-if="currentView === 'data' && Object.keys(dataset).length > 0"
             v-model="dataset"
           ></DataViewer>
+          <template v-else-if="currentView === 'data'">
+            <div class="padded-more">
+              <h1>No data</h1>
+              <p>Load a datafile, or add a new dataset to view it here.</p>
+            </div>
+          </template>
           <ChartViewer
             v-else
             v-bind:chart-type="chartType"
             v-bind:dataset="dataset"
+            v-bind:colours="colours"
             v-bind:options="chartOptions"
             v-bind:use-as-labels="useAsLabels"
           ></ChartViewer>
@@ -63,6 +73,7 @@
 </template>
 
 <script>
+import Vue from 'vue'
 import DataViewer from './DataViewer'
 import ChartViewer from './ChartViewer'
 import SidebarOptions from './SidebarOptions'
@@ -92,13 +103,11 @@ export default {
   data: function () {
     return {
       currentView: 'data', // Two views: data and chart
+      colours: {}, // Contains user-defined colours, solely generated in the sidebar
       // This contains the overall dataset. As ChartJS allows for labels and
       // generally accepts simple number arrays, we will for now run with a
       // dictionary.
-      dataset: {
-        'Label 1': [ 1.4, 2.3, 6.5, 1.0, 6.2, 0.6 ],
-        'Label 2': [ 1, 2, 6, 7, 8, 9, 10 ]
-      },
+      dataset: {},
       chartType: 'line',
       useAsLabels: '', // The dataset to use as labels
       chartOptions: {
@@ -111,6 +120,27 @@ export default {
           position: 'top'
         }
       } // This contains all the chart options
+    }
+  },
+  methods: {
+    addDataset: function () {
+      console.log('Adding dataset!')
+      const num = Object.keys(this.dataset).length + 1
+      if (Object.keys(this.dataset).length === 0) {
+        Vue.set(this.dataset, `Dataset ${num}`, [0])
+      } else {
+        const arr = []
+        const numRows = this.dataset[Object.keys(this.dataset)[0]].length
+        for (let i = 0; i < numRows; i++) {
+          arr.push(0)
+        }
+        Vue.set(this.dataset, `Dataset ${num}`, arr)
+      }
+    },
+    addRow: function () {
+      for (const key of Object.keys(this.dataset)) {
+        this.dataset[key].push(0)
+      }
     }
   }
 }

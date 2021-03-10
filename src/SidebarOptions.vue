@@ -3,34 +3,54 @@
     <!-- DATA VIEWER OPTIONS -->
     <template v-if="currentView === 'data'">
       <p>
-        This view allows you to enter some data. In general, the top-row is
-        reserved for labels, that is: The columns will be single data sets.
-        If you have more than one column, this indicates that you have more than
-        one line, for instance. Pie charts only work with extremely simple data.
+        Here you can load and preview a dataset to get a first impression of
+        what it will look like. Charter supports loading TSV and CSV files. As
+        the tool is meant to be simple, make sure to only load number sets and
+        ensure the file is well-formed. Each column corresponds to one dataset,
+        the first row of the file will be taken as labels.
       </p>
 
       <button
-        class="btn btn-large btn-default"
-        v-on:click="$refs['file-input'].click()"
-      >
-        <span class="icon icon-list"></span>
-        Load file
-      </button>
+          class="btn btn-large btn-default"
+          v-on:click="$refs['file-input'].click()"
+        >
+          <span class="icon icon-list"></span>
+          Load file
+        </button>
       <input type="file" ref="file-input" style="display: none;">
 
-      <p>Which column should form the labels?</p>
-      <select
-        ref="use-as-labels"
-        class="form-control"
-        v-bind:value="useAsLabels"
-        v-on:input="$emit('useaslabels', $event.target.value)"
-      >
-        <option
-          v-for="label, index in Object.keys(dataset)"
-          v-bind:key="index"
-          v-bind:value="label"
-        >{{ label }}</option>
-      </select>
+      <div class="btn-group padded-vertically">
+        <button
+          class="btn btn-large btn-default"
+          v-on:click="$emit('addset')"
+        >
+          <span class="icon icon-list-add"></span>
+          Add dataset
+        </button>
+        <button
+          class="btn btn-large btn-default"
+          v-on:click="$emit('addrow')"
+        >
+          <span class="icon icon-plus"></span>
+          Add row
+        </button>
+      </div>
+
+      <template v-if="Object.keys(dataset).length > 0">
+        <p>Which column should form the labels?</p>
+        <select
+          ref="use-as-labels"
+          class="form-control"
+          v-bind:value="useAsLabels"
+          v-on:input="$emit('useaslabels', $event.target.value)"
+        >
+          <option
+            v-for="label, index in Object.keys(dataset)"
+            v-bind:key="index"
+            v-bind:value="label"
+          >{{ label }}</option>
+        </select>
+      </template>
 
     </template>
     <!-- CHART VIEWER OPTIONS -->
@@ -160,12 +180,25 @@
           <!-- target = scatter -->
           <span class="icon icon-target"></span>
         </button>
+      </div> <!-- END chart type selector -->
+
+      <!-- Let the user assign a color to each dataset -->
+      <div v-for="color, dataset in datasetColours" v-bind:key="dataset">
+        {{ dataset }}
+        <input
+          type="color"
+          v-bind:value="'#' + color.toHex()"
+          v-on:input="updateColor(color, $event.target.value)"
+        >
       </div>
     </template>
   </div>
 </template>
 
 <script>
+import rgbHex from 'rgb-hex'
+import hexRgb from 'hex-rgb'
+
 export default {
   name: 'SidebarOptions',
   props: {
@@ -189,6 +222,31 @@ export default {
     useAsLabels: {
       type: String,
       default: ''
+    }
+  },
+  data: function () {
+    return {
+      datasetColours: {} // Holds a colour for each dataset, split up in r, g, b, and a
+    }
+  },
+  watch: {
+    dataset: function () {
+      // Make sure to produce new colours as applicable
+      for (const key in this.dataset) {
+        if (this.datasetColours[key] === undefined) {
+          this.datasetColours[key] = this.randomColour()
+        }
+      }
+
+      // ... and remove non-existing
+      for (const key in this.datasetColours) {
+        if (this.dataset[key] === undefined) {
+          delete this.datasetColours[key]
+        }
+      }
+
+      // Afterwards, emit an event
+      this.$emit('colours', this.datasetColours)
     }
   },
   mounted: function () {
@@ -271,6 +329,31 @@ export default {
       // Now that the app has the correct data, let's make sure our labels are
       // sane again
       this.$emit('useaslabels', labelArray[0])
+    },
+    randomColour: function () {
+      return {
+        r: Math.random() * 255,
+        g: Math.random() * 255,
+        b: Math.random() * 255,
+        a: 0.8,
+        // Enable easy stringification
+        toString: function (alpha) {
+          if (alpha === undefined) {
+            alpha = this.a
+          }
+          return `rgba(${this.r}, ${this.g}, ${this.b}, ${alpha})`
+        },
+        toHex: function () { return rgbHex(this.r, this.g, this.b) }
+      }
+    },
+    updateColor: function (color, hexVal) {
+      const cols = hexRgb(hexVal)
+      color.r = cols.red
+      color.g = cols.green
+      color.b = cols.blue
+
+      // Afterwards, emit an event
+      this.$emit('colours', this.datasetColours)
     }
   }
 }

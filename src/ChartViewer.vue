@@ -36,6 +36,11 @@ export default {
     useAsLabels: {
       type: String,
       default: ''
+    },
+    // Custom colours for the data
+    colours: {
+      type: Object,
+      default: function () { return {} }
     }
   },
   data: function () {
@@ -55,10 +60,14 @@ export default {
           continue // Obviously don't use *THAT* column
         }
 
+        const color = this.colours[labels[i]]
+
         chartDatasets.push({
           label: labels[i],
           data: data[i],
-          borderColor: 'rgba(205, 230, 200, 1.0)',
+          borderColor: (color !== undefined) ? color.toString(1) : '',
+          backgroundColor: (color !== undefined && this.chartType === 'bar') ? color.toString(0.8): '',
+          fill: false,
           borderWidth: 2
         })
       }
