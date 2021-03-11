@@ -57,6 +57,7 @@
           v-bind:value="useAsLabels"
           v-on:input="$emit('useaslabels', $event.target.value)"
         >
+          <option value="">No label dataset</option>
           <option
             v-for="label, index in Object.keys(dataset)"
             v-bind:key="index"
