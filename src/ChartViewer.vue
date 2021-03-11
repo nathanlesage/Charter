@@ -50,6 +50,11 @@ export default {
     }
   },
   computed: {
+    /**
+     * Returns the dataset in a form that Chart.js can consume
+     *
+     * @return  {Array}  An array with all datasets
+     */
     chartData: function () {
       const labels = Object.keys(this.dataset)
       const data = Object.values(this.dataset)
@@ -142,7 +147,7 @@ export default {
           ...this.options.title // Fill in with the rest of the value
         },
         // Determine the resolution of the chart (necessary for exporting)
-        devicePixelRatio: (this.options.resolution === 0) ? undefined : this.options.resolution,
+        devicePixelRatio: this.options.resolution,
         layout: {
           padding: {
             left: this.options.padding,

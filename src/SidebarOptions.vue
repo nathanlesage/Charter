@@ -81,71 +81,22 @@
         </button>
       </div>
 
-      <p><strong>Export resolution</strong></p>
+      <label for="export-resolution"><strong>Export resolution</strong> ({{ chartDimensions }})</label>
       <input
         ref="export-resolution"
+        id="export-resolution"
         class="form-control"
         type="range"
-        min="0"
+        min="1"
         max="10"
         v-bind:value="value.resolution"
         v-on:input="setOptions()"
       >
       <hr>
-      <!-- GENERIC SETTINGS APPLICABLE TO ALL CHART TYPES -->
-      <div class="form-group">
-        <label><strong>Chart Title and Position</strong></label>
-        <input
-          ref="title-text"
-          type="text"
-          class="form-control"
-          placeholder="Chart title"
-          v-bind:value="value.title.text"
-          v-on:input="setOptions()"
-        >
-      </div>
-      <select
-        ref="title-position"
-        class="form-control"
-        v-bind:value="value.title.position"
-        v-on:input="setOptions()"
-      >
-        <option value="top">Top</option>
-        <option value="left">Left</option>
-        <option value="right">Right</option>
-        <option value="bottom">Bottom</option>
-      </select>
-
-      <p><strong>Chart spacing</strong></p>
-      <input
-        ref="layout-padding"
-        class="form-control"
-        type="range"
-        min="0"
-        max="200"
-        v-bind:value="value.padding"
-        v-on:input="setOptions()"
-      >
-
-      <p><strong>Chart legend</strong></p>
-      <select
-        ref="legend-position"
-        class="form-control"
-        v-bind:value="legendValuePosition"
-        v-on:input="setOptions()"
-      >
-        <option value="none">Hide legend</option>
-        <option value="top">Top</option>
-        <option value="left">Left</option>
-        <option value="right">Right</option>
-        <option value="bottom">Bottom</option>
-      </select>
-
-      <hr>
 
       <!-- CHART TYPE -->
-      <p><strong>Chart Type</strong></p>
-      <div class="btn-group padded-vertically">
+      <label><strong>Chart Type</strong></label>
+      <div class="btn-group">
         <button
           v-bind:class="{
             'btn': true,
@@ -222,9 +173,62 @@
           <span class="icon icon-target"></span>
         </button>
       </div> <!-- END chart type selector -->
+      <hr>
+
+      <!-- GENERIC SETTINGS APPLICABLE TO ALL CHART TYPES -->
+      <div class="form-group">
+        <label><strong>Chart Title and Position</strong></label>
+        <input
+          ref="title-text"
+          type="text"
+          class="form-control"
+          placeholder="Chart title"
+          v-bind:value="value.title.text"
+          v-on:input="setOptions()"
+        >
+      </div>
+      <select
+        ref="title-position"
+        class="form-control"
+        v-bind:value="value.title.position"
+        v-on:input="setOptions()"
+      >
+        <option value="top">Top</option>
+        <option value="left">Left</option>
+        <option value="right">Right</option>
+        <option value="bottom">Bottom</option>
+      </select>
+
+      <label><strong>Chart legend and Position</strong></label>
+      <select
+        ref="legend-position"
+        class="form-control"
+        v-bind:value="legendValuePosition"
+        v-on:input="setOptions()"
+      >
+        <option value="none">Hide legend</option>
+        <option value="top">Top</option>
+        <option value="left">Left</option>
+        <option value="right">Right</option>
+        <option value="bottom">Bottom</option>
+      </select>
+
+      <label for="layout-padding"><strong>Chart spacing</strong> ({{ value.padding }}px)</label>
+      <input
+        ref="layout-padding"
+        id="layout-padding"
+        class="form-control"
+        type="range"
+        min="0"
+        max="200"
+        v-bind:value="value.padding"
+        v-on:input="setOptions()"
+      >
+
+      <hr>
 
       <!-- Let the user finetune the options for each dataset -->
-      <p><strong>Dataset Settings</strong></p>
+      <label><strong>Dataset Settings</strong></label>
       <select
         class="form-control"
         v-bind:value="activeDataset"
@@ -235,7 +239,7 @@
           v-bind:key="index"
           v-bind:value="key"
         >
-          {{ key }}
+          Dataset: {{ key }}
         </option>
       </select>
       <template v-if="datasetOptions[activeDataset] !== undefined">
@@ -248,7 +252,7 @@
           >
         </div>
 
-        <p>Point style</p>
+        <label>Point style</label>
         <select
           class="form-control"
           v-bind:value="datasetOptions[activeDataset].pointStyle"
@@ -266,7 +270,7 @@
           <option value="triangle">Triangle</option>
         </select>
 
-        <label>Point size</label>
+        <label class="padded-top">Point size</label>
         <input
           type="range"
           class="form-control"
@@ -311,12 +315,12 @@
       </template>
 
       <!-- GRID LINE CONFIGURATION -->
-      <p><strong>x-Axis</strong></p>
+      <label><strong>x-Axis</strong></label>
 
       <input
         ref="xaxis-label"
         type="text"
-        placeholder="Axis label"
+        placeholder="Enter your x-axis label here"
         class="form-control"
         v-on:input="setOptions()"
       >
@@ -338,6 +342,7 @@
             ref="xaxisgrid-drawonchartarea"
             type="checkbox"
             v-bind:checked="value.xAxis.gridLines.drawOnChartArea"
+            v-bind:disabled="!value.xAxis.gridLines.display"
             v-on:input="setOptions()"
           > Gridlines
         </label>
@@ -349,6 +354,7 @@
             ref="xaxisgrid-drawticks"
             type="checkbox"
             v-bind:checked="value.xAxis.gridLines.drawTicks"
+            v-bind:disabled="!value.xAxis.gridLines.display"
             v-on:input="setOptions()"
           > Tick lines
         </label>
@@ -359,18 +365,18 @@
           <input
             ref="xaxisgrid-ticklabels"
             type="checkbox"
-            v-bind:checked="value.yAxis.ticks.display"
+            v-bind:checked="value.xAxis.ticks.display"
             v-on:input="setOptions()"
           > Tick labels
         </label>
       </div>
 
-      <p><strong>y-Axis</strong></p>
+      <label><strong>y-Axis</strong></label>
 
       <input
         ref="yaxis-label"
         type="text"
-        placeholder="Axis label"
+        placeholder="Enter your y-axis label here"
         class="form-control"
         v-on:input="setOptions()"
       >
@@ -392,6 +398,7 @@
             ref="yaxisgrid-drawonchartarea"
             type="checkbox"
             v-bind:checked="value.yAxis.gridLines.drawOnChartArea"
+            v-bind:disabled="!value.yAxis.gridLines.display"
             v-on:input="setOptions()"
           > Gridlines
         </label>
@@ -403,6 +410,7 @@
             ref="yaxisgrid-drawticks"
             type="checkbox"
             v-bind:checked="value.yAxis.gridLines.drawTicks"
+            v-bind:disabled="!value.yAxis.gridLines.display"
             v-on:input="setOptions()"
           > Ticks
         </label>
@@ -426,7 +434,7 @@
             type="checkbox"
             v-bind:checked="value.yAxis.beginAtZero"
             v-on:input="setOptions()"
-          > Include y=0
+          > Start axis values at y=0
         </label>
       </div>
     </template>
@@ -444,6 +452,11 @@ export default {
     currentView: {
       type: String,
       default: 'data'
+    },
+    // Holds the chart dimensions as they would be output
+    chartDimensions: {
+      type: String,
+      default: '0x0px'
     },
     // This holds the chart configuration
     value: {
@@ -637,10 +650,10 @@ export default {
 
       options.pointStyle = 'circle'
 
-      options.tension = 0.4 // Determines the amount of curviness
-      options.pointRadius = 4 // 0 = disable
+      options.tension = 0 // Determines the amount of curviness
+      options.pointRadius = 0 // 0 = disable
       options.fill = false // Whether or not the AUC should be filled
-      options.borderWidth = 3
+      options.borderWidth = 2
 
       return options
     },

@@ -34,6 +34,7 @@
           <!-- BEGIN OPTION VIEWER SIDEBAR CONTENTS -->
           <SidebarOptions
             v-bind:current-view="currentView"
+            v-bind:chart-dimensions="chartDimensions"
             v-model="chartOptions"
             v-bind:chart-type="chartType"
             v-bind:dataset="dataset"
@@ -111,6 +112,7 @@ export default {
   },
   data: function () {
     return {
+      chartDimensions: '0x0px', // Purely informative, holds the actual chart dimensions
       currentView: 'data', // Two views: data and chart
       colours: {}, // Contains user-defined colours, solely generated in the sidebar
       // Dataset options are customisations for each single dataset that is loaded
@@ -122,8 +124,8 @@ export default {
       chartType: 'line',
       useAsLabels: '', // The dataset to use as labels
       chartOptions: {
-        padding: 0, // Overall padding of the chart
-        resolution: 0, // The "resolution" (a.k.a. the pixel ratio)
+        padding: 30, // Overall padding of the chart in pixels
+        resolution: window.devicePixelRatio, // The "resolution" of the chart
         title: {
           text: 'Untitled Chart',
           position: 'top'
@@ -156,6 +158,24 @@ export default {
           }
         }
       } // This contains all the chart options
+    }
+  },
+  watch: {
+    chartOptions: function (newValue, oldValue) {
+      if (newValue.resolution === oldValue.resoluton) {
+        return // Nothing changed
+      }
+
+      // Give the chart time to update itself, then take the base64 and
+      // calculate the dimensions based off that.
+      this.$nextTick(function () {
+        const img = document.createElement('img')
+        img.onload = (event) => {
+          // Update the chart dimensions
+          this.chartDimensions = `${img.width}x${img.height}px`
+        }
+        img.src = this.$refs['chart-viewer'].getBase64()
+      })
     }
   },
   methods: {
