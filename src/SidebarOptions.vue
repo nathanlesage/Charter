@@ -1,7 +1,16 @@
 <template>
   <div class="padded-vertically">
     <!-- DATA VIEWER OPTIONS -->
-    <template v-if="currentView === 'data'">
+    <template v-if="currentView === 'info'">
+      <h4>Charter v{{ charterVersion }}</h4>
+      <p>Libraries used:</p>
+      <ul>
+        <li>Vue <strong>v{{ vueVersion }}</strong></li>
+        <li>Chart.js <strong>v{{ chartJSVersion }}</strong></li>
+        <li>Photonkit</li>
+      </ul>
+    </template>
+    <template v-else-if="currentView === 'data'">
       <p>
         <strong>Welcome to Charter!</strong> Charter is a small online tool that
         enables you to create small charts quick'n'dirty. That means: No hassle
@@ -486,6 +495,9 @@ import Vue from 'vue'
 import rgbHex from 'rgb-hex'
 import hexRgb from 'hex-rgb'
 
+import { version } from '../package.json'
+import { version as chartJSVersion } from 'chart.js/package.json'
+
 export default {
   name: 'SidebarOptions',
   props: {
@@ -518,6 +530,10 @@ export default {
   },
   data: function () {
     return {
+      // Versioning information
+      charterVersion: version,
+      vueVersion: Vue.version,
+      chartJSVersion: chartJSVersion,
       // This holds the options for the dataset. We will be managing these in
       // this component rather than the app because this way the dataflow is
       // simpler (as it doesn't have to go back and forth everytime).

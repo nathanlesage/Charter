@@ -30,6 +30,18 @@
               <span class="icon icon-chart-bar"></span>
               Chart
             </button>
+            <!-- Info pane -->
+            <button
+              v-bind:class="{
+                'btn': true,
+                'btn-large': true,
+                'btn-default': true,
+                'active': currentView === 'info'
+              }"
+              v-on:click="currentView = 'info'"
+            >
+              <span class="icon icon-info"></span>
+            </button>
           </div>
           <!-- BEGIN OPTION VIEWER SIDEBAR CONTENTS -->
           <SidebarOptions
@@ -61,6 +73,7 @@
               <p>Load a datafile, or add a new dataset to view it here.</p>
             </div>
           </template>
+          <InfoViewer v-else-if="currentView === 'info'"></InfoViewer>
           <ChartViewer
             v-else
             ref="chart-viewer"
@@ -84,6 +97,7 @@
 import Vue from 'vue'
 import DataViewer from './DataViewer'
 import ChartViewer from './ChartViewer'
+import InfoViewer from './InfoViewer'
 import SidebarOptions from './SidebarOptions'
 import b64toBlob from 'b64-to-blob'
 import sanitize from 'sanitize-filename'
@@ -108,6 +122,7 @@ export default {
   components: {
     DataViewer,
     ChartViewer,
+    InfoViewer,
     SidebarOptions
   },
   data: function () {

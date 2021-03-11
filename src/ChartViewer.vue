@@ -205,7 +205,6 @@ export default {
       const afterYValue = this.options.yAxis.ticks.afterValue
 
       if (beforeXValue.trim() !== '' || afterXValue.trim() !== '') {
-        console.log('Adding callback!!')
         options.scales.xAxes[0].ticks.callback = function (value, index, allValues) {
           return `${beforeXValue}${value}${afterXValue}`
         }
