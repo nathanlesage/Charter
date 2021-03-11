@@ -14,7 +14,6 @@
     "build:web": "NODE_ENV=production webpack --config ./webpack.renderer.config.js"
   },
   "dependencies": {
-    "@electron-forge/cli": "^6.0.0-beta.54",
     "b64-to-blob": "^1.2.19",
     "chart.js": "^2.9.4",
     "hex-rgb": "^4.2.0",
@@ -25,6 +24,7 @@
     "forge": "./forge.config.js"
   },
   "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.54",
     "@electron-forge/plugin-webpack": "^6.0.0-beta.54",
     "@typescript-eslint/eslint-plugin": "^4.17.0",
     "@typescript-eslint/parser": "^4.17.0",
