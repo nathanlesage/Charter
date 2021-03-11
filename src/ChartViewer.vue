@@ -139,9 +139,10 @@ export default {
         options: this.getChartOptions(),
         plugins: [
           {
+            // This custom plugin simply draws a rectangle that fills the whole
+            // background of the chart with a single colour.
             id: 'background',
             beforeDraw: function (chart, mysteryOption, pluginOptions) {
-              console.log(pluginOptions)
               if (!pluginOptions.draw) {
                 return // Leave the transparent background
               }
@@ -154,7 +155,6 @@ export default {
               chart.chart.ctx.fillStyle = pluginOptions.color
               chart.chart.ctx.fillRect(0, 0, width, height)
               chart.chart.ctx.fillStyle = oldStyle
-              console.log(width, height)
             }
           }
         ]
