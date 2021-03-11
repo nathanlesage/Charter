@@ -278,6 +278,17 @@
           >
         </div>
 
+        <label>Background color opacity</label>
+        <input
+          class="form-control"
+          type="range"
+          min="0"
+          max="1"
+          step="0.1"
+          v-bind:value="datasetOptions[activeDataset].colour.a"
+          v-on:input="datasetOptions[activeDataset].colour.a = parseFloat($event.target.value)"
+        >
+
         <label>Point style</label>
         <select
           class="form-control"

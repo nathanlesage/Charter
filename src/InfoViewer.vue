@@ -125,6 +125,11 @@
         By default, each dataset has a randomly selected colour. Here
         you can change that to one you like.
       </dd>
+      <dt>Background color opacity</dt>
+      <dd>
+        Allows you to customise the transparency of the chart area's filling if
+        the filling is being used (bar chars always are filled).
+      </dd>
       <dt>Point style</dt>
       <dd>
         If you want to display each datapoint explicitly, you can

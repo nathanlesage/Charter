@@ -71,9 +71,12 @@ export default {
         chartDatasets.push({
           label: labels[i],
           data: data[i],
+          // Border colour and point background are both always opacity 1,
+          // but the background colour can differ, which is why we take the
+          // alpha saved within the colour.
           borderColor: (options.colour !== undefined) ? options.colour.toString(1) : '',
-          backgroundColor: (options.colour !== undefined) ? options.colour.toString(0.6): '',
           pointBackgroundColor: (options.colour !== undefined) ? options.colour.toString(1) : '',
+          backgroundColor: (options.colour !== undefined) ? options.colour.toString(): '',
           pointStyle: options.pointStyle,
           pointRadius: options.pointRadius,
           tension: options.tension,
