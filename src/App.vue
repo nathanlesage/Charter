@@ -139,6 +139,17 @@ export default {
       chartType: 'line',
       useAsLabels: '', // The dataset to use as labels
       chartOptions: {
+        // Specific options for bar charts
+        barChart: {
+          barPercentage: 0.8,
+          categoryPercentage: 8.0,
+          stacked: false,
+          horizontal: false
+        },
+        // Specific options for pie charts
+        pieChart: {
+          cutoutPercentage: 0 // 0-100
+        },
         drawChartBackground: false,
         chartBackgroundColor: '#ffffff',
         padding: 30, // Overall padding of the chart in pixels

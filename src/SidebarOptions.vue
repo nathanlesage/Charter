@@ -251,6 +251,70 @@
         >
       </div>
 
+      <!-- Now settings for specific chart types -->
+      <template v-if="chartType === 'bar'">
+        <!-- TODO: Enable barPercentage and categoryPercentage (0-1) -->
+        <label for="barchart-bar-percentage"><strong>Bar width</strong></label>
+        <input
+          ref="barchart-bar-percentage"
+          id="barchart-bar-percentage"
+          class="form-control"
+          type="range"
+          min="0"
+          max="1"
+          step="0.1"
+          v-bind:value="value.barChart.barPercentage"
+          v-on:input="setOptions()"
+        >
+        <label for="barchart-cat-percentage"><strong>Category width</strong></label>
+        <input
+          ref="barchart-cat-percentage"
+          id="barchart-cat-percentage"
+          class="form-control"
+          type="range"
+          min="0"
+          max="1"
+          step="0.1"
+          v-bind:value="value.barChart.categoryPercentage"
+          v-on:input="setOptions()"
+        >
+        <!-- TODO: Enable stacked and horizontal bar chart -->
+        <div class="checkbox">
+          <label>
+            <input
+              ref="barchart-stacked"
+              type="checkbox"
+              v-bind:checked="value.barChart.stacked"
+              v-on:input="setOptions()"
+            > Stacked
+          </label>
+        </div>
+        <div class="checkbox">
+          <label>
+            <input
+              ref="barchart-horizontal"
+              type="checkbox"
+              v-bind:checked="value.barChart.horizontal"
+              v-on:input="setOptions()"
+            > Horizontal
+          </label>
+        </div>
+      </template>
+      <template v-else-if="chartType === 'pie'">
+        <!-- TODO: Enable cutoutPercentage (0 for pie, 50 for donut) -->
+        <label for="piechart-cutout"><strong>Cutout</strong></label>
+        <input
+          ref="piechart-cutout"
+          id="piechart-cutout"
+          class="form-control"
+          type="range"
+          min="0"
+          max="100"
+          v-bind:value="value.pieChart.cutoutPercentage"
+          v-on:input="setOptions()"
+        >
+      </template>
+
       <hr>
 
       <!-- Let the user finetune the options for each dataset -->
@@ -594,8 +658,6 @@ export default {
         return
       }
 
-      console.log('Loading file ' + file.name)
-
       const reader = new FileReader()
       reader.onload = (event) => {
         const contents = event.target.result
@@ -648,6 +710,16 @@ export default {
       newValue.padding = parseInt(this.$refs['layout-padding'].value, 10)
 
       newValue.resolution = parseInt(this.$refs['export-resolution'].value, 10)
+
+      // We need to make sure these elements are in fact rendered.
+      if (this.chartType === 'bar') {
+        newValue.barChart.barPercentage = parseFloat(this.$refs['barchart-bar-percentage'].value)
+        newValue.barChart.categoryPercentage = parseFloat(this.$refs['barchart-cat-percentage'].value)
+        newValue.barChart.stacked = this.$refs['barchart-stacked'].checked
+        newValue.barChart.horizontal = this.$refs['barchart-horizontal'].checked
+      } else if (this.chartType === 'pie') {
+        newValue.pieChart.cutoutPercentage = parseInt(this.$refs['piechart-cutout'].value, 10)
+      }
 
       newValue.xAxis.gridLines.display = this.$refs['xaxisgrid-display'].checked
       newValue.xAxis.gridLines.drawOnChartArea = this.$refs['xaxisgrid-drawonchartarea'].checked

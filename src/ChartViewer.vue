@@ -67,6 +67,7 @@ export default {
         }
 
         const options = this.datasetOptions[labels[i]]
+        const barChartOptions = this.options.barChart
 
         chartDatasets.push({
           label: labels[i],
@@ -81,7 +82,10 @@ export default {
           pointRadius: options.pointRadius,
           tension: options.tension,
           fill: options.fill,
-          borderWidth: options.borderWidth
+          borderWidth: options.borderWidth,
+          // These options will be respected once the chart type is set to bar
+          barPercentage: barChartOptions.barPercentage,
+          categoryPercentage: barChartOptions.categoryPercentage
         })
       }
 
@@ -105,12 +109,15 @@ export default {
       this.chart.data.datasets = this.chartData
       this.chart.update()
     },
-    options: function () {
+    options: function (newOptions, oldOptions) {
       if (this.chart === null) {
         return
       }
 
-      if (this.chart.options.devicePixelRatio !== this.options.resolution) {
+      const resChanged = this.chart.options.devicePixelRatio !== this.options.resolution
+      const barHorizontal = newOptions.barChart.horizontal !== oldOptions.barChart.horizontal
+
+      if (resChanged || barHorizontal) {
         // We need to re-create the whole thing
         this.createChart()
       } else {
@@ -133,8 +140,13 @@ export default {
         this.chart.destroy()
       }
 
+      let chartType = this.chartType
+      if (chartType === 'bar' && this.options.barChart.horizontal) {
+        chartType = 'horizontalBar'
+      }
+
       this.chart = new Chart(this.$refs.chart, {
-        type: this.chartType,
+        type: chartType,
         data: {
           labels: this.dataset[this.useAsLabels], // Might be undefined, but doesn't throw
           datasets: this.chartData
@@ -169,7 +181,8 @@ export default {
         title: {
           // Only display title if set
           display: this.options.title.text.trim() !== '',
-          ...this.options.title // Fill in with the rest of the value
+          text: this.options.title.text,
+          position: this.options.title.position
         },
         // Determine the resolution of the chart (necessary for exporting)
         devicePixelRatio: this.options.resolution,
@@ -203,12 +216,15 @@ export default {
             gridLines: this.options.xAxis.gridLines,
             ticks: {
               display: this.options.xAxis.ticks.display
-            }
+            },
+            // Will be respected if this is a bar chart
+            stacked: this.options.barChart.stacked
           }]
         },
         // Generic options we need every time
         responsive: true,
         maintainAspectRatio: false,
+        cutoutPercentage: this.options.pieChart.cutoutPercentage,
         // Tooltips should be fastly visible, b/c they won't be exported either way
         tooltips: {
           mode: 'index',
