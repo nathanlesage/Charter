@@ -140,7 +140,8 @@ export default {
       }) // END chart instantiation
     },
     getChartOptions: function () {
-      return {
+      // First all options that we can define inline
+      const options = {
         title: {
           // Only display title if set
           display: this.options.title.text.trim() !== '',
@@ -194,6 +195,29 @@ export default {
           intersect: false
         },
       }
+
+      // Now, tend to options we need to customise
+
+      // Should we customise the tick labels?
+      const beforeXValue = this.options.xAxis.ticks.beforeValue
+      const afterXValue = this.options.xAxis.ticks.afterValue
+      const beforeYValue = this.options.yAxis.ticks.beforeValue
+      const afterYValue = this.options.yAxis.ticks.afterValue
+
+      if (beforeXValue.trim() !== '' || afterXValue.trim() !== '') {
+        console.log('Adding callback!!')
+        options.scales.xAxes[0].ticks.callback = function (value, index, allValues) {
+          return `${beforeXValue}${value}${afterXValue}`
+        }
+      }
+
+      if (beforeYValue.trim() !== '' || afterYValue.trim() !== '') {
+        options.scales.yAxes[0].ticks.callback = function (value, index, allValues) {
+          return `${beforeYValue}${value}${afterYValue}`
+        }
+      }
+
+      return options
     },
     getBase64: function () {
       if (this.chart === null) {

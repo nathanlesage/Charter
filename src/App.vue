@@ -142,7 +142,10 @@ export default {
             drawTicks: true // Gridlines off the charts, so to speak
           },
           ticks: {
-            display: true // Whether to show tick labels
+            display: true, // Whether to show tick labels
+            // The next to options allow the user to customise the value display
+            beforeValue: '',
+            afterValue: ''
           }
         },
         yAxis: {
@@ -154,7 +157,10 @@ export default {
             drawTicks: true // Gridlines off the charts, so to speak
           },
           ticks: {
-            display: true // Whether to show tick labels
+            display: true, // Whether to show tick labels
+            // The next to options allow the user to customise the value display
+            beforeValue: '',
+            afterValue: ''
           }
         }
       } // This contains all the chart options

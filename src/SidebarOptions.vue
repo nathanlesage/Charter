@@ -325,6 +325,26 @@
         v-on:input="setOptions()"
       >
 
+      <label class="padded-top">Customise ticks: {{ value.xAxis.ticks.beforeValue}}1.23{{ value.xAxis.ticks.afterValue }}</label>
+
+      <input
+        ref="xaxis-ticks-before"
+        type="text"
+        placeholder="Before tick labels, e.g. $"
+        v-bind:value="value.xAxis.ticks.beforeValue"
+        class="form-control"
+        v-on:input="setOptions()"
+      >
+
+      <input
+        ref="xaxis-ticks-after"
+        type="text"
+        placeholder="After tick labels, e.g. %"
+        v-bind:value="value.xAxis.ticks.afterValue"
+        class="form-control"
+        v-on:input="setOptions()"
+      >
+
       <div class="checkbox">
         <label>
           <input
@@ -377,6 +397,26 @@
         ref="yaxis-label"
         type="text"
         placeholder="Enter your y-axis label here"
+        class="form-control"
+        v-on:input="setOptions()"
+      >
+
+      <label class="padded-top">Customise ticks: {{ value.yAxis.ticks.beforeValue}}1.23{{ value.yAxis.ticks.afterValue }}</label>
+
+      <input
+        ref="yaxis-ticks-before"
+        type="text"
+        placeholder="Before tick labels, e.g. $"
+        v-bind:value="value.yAxis.ticks.beforeValue"
+        class="form-control"
+        v-on:input="setOptions()"
+      >
+
+      <input
+        ref="yaxis-ticks-after"
+        type="text"
+        placeholder="After tick labels, e.g. %"
+        v-bind:value="value.yAxis.ticks.afterValue"
         class="form-control"
         v-on:input="setOptions()"
       >
@@ -574,6 +614,11 @@ export default {
 
       newValue.xAxis.ticks.display = this.$refs['xaxisgrid-ticklabels'].checked
       newValue.yAxis.ticks.display = this.$refs['yaxisgrid-ticklabels'].checked
+
+      newValue.xAxis.ticks.beforeValue = this.$refs['xaxis-ticks-before'].value
+      newValue.xAxis.ticks.afterValue = this.$refs['xaxis-ticks-after'].value
+      newValue.yAxis.ticks.beforeValue = this.$refs['yaxis-ticks-before'].value
+      newValue.yAxis.ticks.afterValue = this.$refs['yaxis-ticks-after'].value
 
       newValue.yAxis.beginAtZero = this.$refs['yaxis-beginatzero'].checked
 
