@@ -139,6 +139,8 @@ export default {
       chartType: 'line',
       useAsLabels: '', // The dataset to use as labels
       chartOptions: {
+        drawChartBackground: false,
+        chartBackgroundColor: '#ffffff',
         padding: 30, // Overall padding of the chart in pixels
         resolution: window.devicePixelRatio, // The "resolution" of the chart
         title: {

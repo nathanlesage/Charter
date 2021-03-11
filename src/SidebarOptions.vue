@@ -189,17 +189,19 @@
           v-on:input="setOptions()"
         >
       </div>
-      <select
-        ref="title-position"
-        class="form-control"
-        v-bind:value="value.title.position"
-        v-on:input="setOptions()"
-      >
-        <option value="top">Top</option>
-        <option value="left">Left</option>
-        <option value="right">Right</option>
-        <option value="bottom">Bottom</option>
-      </select>
+      <div class="form-group">
+        <select
+          ref="title-position"
+          class="form-control"
+          v-bind:value="value.title.position"
+          v-on:input="setOptions()"
+        >
+          <option value="top">Top</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+          <option value="bottom">Bottom</option>
+        </select>
+      </div>
 
       <label><strong>Chart legend and Position</strong></label>
       <select
@@ -226,6 +228,28 @@
         v-bind:value="value.padding"
         v-on:input="setOptions()"
       >
+
+      <div class="checkbox">
+        <label>
+          <input
+            ref="draw-chart-background"
+            type="checkbox"
+            v-bind:checked="value.drawChartBackground"
+            v-on:input="setOptions()"
+          > Chart background color
+        </label>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <label>Chart background color:</label>
+        <input
+          ref="chart-background-color"
+          type="color"
+          v-bind:value="value.chartBackgroundColor"
+          v-bind:disabled="!value.drawChartBackground"
+          v-on:input="setOptions()"
+        >
+      </div>
 
       <hr>
 
@@ -597,6 +621,9 @@ export default {
       const newValue = Object.assign({}, this.value)
       newValue.title.text = this.$refs['title-text'].value
       newValue.title.position = this.$refs['title-position'].value
+
+      newValue.drawChartBackground = this.$refs['draw-chart-background'].checked
+      newValue.chartBackgroundColor = this.$refs['chart-background-color'].value
 
       // We're merging two options into one here
       if (this.$refs['legend-position'].value === 'none') {

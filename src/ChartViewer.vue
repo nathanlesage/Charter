@@ -136,7 +136,28 @@ export default {
           labels: this.dataset[this.useAsLabels], // Might be undefined, but doesn't throw
           datasets: this.chartData
         },
-        options: this.getChartOptions()
+        options: this.getChartOptions(),
+        plugins: [
+          {
+            id: 'background',
+            beforeDraw: function (chart, mysteryOption, pluginOptions) {
+              console.log(pluginOptions)
+              if (!pluginOptions.draw) {
+                return // Leave the transparent background
+              }
+
+              // Fill the complete background with a colour of our choice.
+              const width = chart.chart.width
+              const height = chart.chart.height
+
+              const oldStyle = chart.chart.ctx.fillStyle
+              chart.chart.ctx.fillStyle = pluginOptions.color
+              chart.chart.ctx.fillRect(0, 0, width, height)
+              chart.chart.ctx.fillStyle = oldStyle
+              console.log(width, height)
+            }
+          }
+        ]
       }) // END chart instantiation
     },
     getChartOptions: function () {
@@ -194,6 +215,12 @@ export default {
           mode: 'index',
           intersect: false
         },
+        plugins: {
+          background: {
+            draw: this.options.drawChartBackground,
+            color: this.options.chartBackgroundColor
+          }
+        }
       }
 
       // Now, tend to options we need to customise

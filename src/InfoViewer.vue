@@ -96,13 +96,6 @@
         needed to render the chart and might also make it look ugly.
       </strong>
     </p>
-    <p>
-      Additionally, you have the ability to set a background colour
-      for the whole chart. By default, the chart will be exported
-      using a transparent background, which is recommended so you
-      don't have to perfectly match the background colour of wherever
-      you want to use that chart.
-    </p>
     <h4><a name="chart-options"></a>General Chart Options</h4>
     <p>
       The next section contains general options. First you can select
@@ -112,6 +105,12 @@
       and where you want to have a legend. The chart spacing can be
       used if you don't want the chart to exactly align with the image
       borders.
+    </p>
+    <p>
+      Lastly, you can set a colour for the whole chart. By default, charts have
+      a transparent background (Charter displays the chart on a white canvas,
+      but that is not the background colour of the chart). Here you can choose a
+      custom colour.
     </p>
     <h4><a name="dataset-options"></a>Dataset Customisation</h4>
     <p>
