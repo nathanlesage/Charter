@@ -11,7 +11,7 @@
     "start": "electron-forge start",
     "package": "electron-forge package",
     "lint": "eslint --ext js,ts,vue src",
-    "build": "NODE_ENV=production webpack --config ./webpack.renderer.config.js"
+    "build:web": "NODE_ENV=production webpack --config ./webpack.renderer.config.js"
   },
   "dependencies": {
     "@electron-forge/cli": "^6.0.0-beta.54",
