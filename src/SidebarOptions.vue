@@ -17,13 +17,6 @@
         with the Excel and no need to spin up your data science IDE. Just drop
         in a few numbers, tweak the chart, and save it on your computer.
       </p>
-      <p>
-        Here you can load and preview a dataset to get a first impression of
-        what it will look like. Charter supports loading TSV and CSV files. As
-        the tool is meant to be simple, make sure to only load number sets and
-        ensure the file is well-formed. Each column corresponds to one dataset,
-        the first row of the file will be taken as labels.
-      </p>
 
       <button
           class="btn btn-large btn-default"

@@ -2,13 +2,12 @@
   <div class="padded-more">
     <h1>About Charter</h1>
     <p>
-      Charter is a side-project by Hendrik Erz, written in a sleepless
-      night. It allows you to quickly create simple charts based on
-      some numbers. It is intended for those instances where you are
-      in between meetings and neither want to use Excel nor spin up
-      your data science IDE. The best: This service works completely
-      in your browser with no data being sent to any server. Nothing
-      leaves your computer.
+      Charter is a side-project by <a href="https://www.hendrik-erz.de/" target="_blank">Hendrik Erz</a>,
+      written in a sleepless night. It allows you to quickly create simple
+      charts based on some numbers. It is intended for those instances where you
+      are in between meetings and neither want to use Excel nor spin up your
+      data science IDE. The best: This service works completely in your browser
+      with no data being sent to any server. Nothing leaves your computer.
     </p>
     <h2>Requirements</h2>
     <p>
