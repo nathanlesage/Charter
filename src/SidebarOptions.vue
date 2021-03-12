@@ -50,7 +50,7 @@
       </div>
 
       <template v-if="Object.keys(dataset).length > 0">
-        <p>Which column should form the labels?</p>
+        <p>Which column should form the labels and x-axis values in scatter plots?</p>
         <select
           ref="use-as-labels"
           class="form-control"

@@ -97,9 +97,24 @@ export default {
           bgColor = alphaArray
         }
 
+        // Last but not least, we need to re-form the data if the user wants
+        // to create a scatter plot. In that case, the label dataset will also
+        // provide the x-axis values, not just the labels.
+        let datasetData = data[i]
+        if (this.chartType === 'scatter' && labels.includes(this.useAsLabels)) {
+          const xValues = data[labels.indexOf(this.useAsLabels)]
+
+          datasetData = data[i].map((elem, index) => {
+            return {
+              x: xValues[index],
+              y: elem
+            }
+          })
+        }
+
         chartDatasets.push({
           label: labels[i],
-          data: data[i],
+          data: datasetData,
           // Border colour and point background are both always opacity 1,
           // but the background colour can differ, which is why we take the
           // alpha saved within the colour.
