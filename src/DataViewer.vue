@@ -1,10 +1,14 @@
 <template>
-  <table class="data-table">
+  <table
+    class="data-table"
+    v-on:keyup="removeRow"
+  >
     <tr>
       <th
         v-for="item, labelIndex in labels"
         v-bind:key="labelIndex"
         v-bind:class="{ 'row-number': labelIndex === 0 }"
+        v-on:click="selectedRow = -1"
       >
         <div v-if="labelIndex > 0" style="position: relative">
           <input
@@ -20,14 +24,17 @@
             v-on:click="removeDataset(labelIndex)"
           ></span>
         </div>
-        <span v-else class="row-number">{{ item }}</span>
+        <span v-else>{{ item }}</span>
       </th>
     </tr>
     <tr v-for="row, rowIndex in dataRows" v-bind:key="rowIndex">
       <td
         v-for="column, colIndex in row"
         v-bind:key="colIndex"
-        v-bind:class="{ 'row-number': colIndex === 0 }"
+        v-bind:class="{
+          'row-number': colIndex === 0,
+          'selected': selectedRow === rowIndex
+        }"
       >
         <input
           v-if="colIndex > 0"
@@ -35,7 +42,12 @@
           v-bind:value="column"
           v-on:change="handleInput(rowIndex, colIndex, $event.target.value)"
         >
-        <span v-else>{{ column }}</span>
+        <span
+          v-else
+          v-on:click="selectedRow = rowIndex"
+        >
+          {{ column }}
+        </span>
       </td>
     </tr>
   </table>
@@ -52,7 +64,14 @@ export default {
     }
   },
   data: function () {
-    return {}
+    return {
+      selectedRow: -1
+    }
+  },
+  watch: {
+    selectedRow: function () {
+      this.$emit('rowselection', this.selectedRow)
+    }
   },
   computed: {
     labels: function () {
@@ -150,6 +169,19 @@ export default {
       }
 
       this.$emit('input', newValue)
+    },
+    removeRow: function (event) {
+      const newValue = {}
+
+      for (const dataset in this.value) {
+        newValue[dataset] = this.value[dataset]
+          .filter((elem, idx) => idx !== this.selectedRow)
+          .map(elem => elem)
+      }
+
+      this.selectedRow = -1
+
+      this.$emit('input', newValue)
     }
   }
 }
@@ -158,14 +190,21 @@ export default {
 <style>
 table.data-table {
   border-collapse: collapse;
+  background-color: white;
 }
 table.data-table td, table.data-table th {
   border: 1px solid #aaa;
   padding: 0;
 }
 
+table.data-table td.selected, table.data-table td.row-number.selected {
+  background-color: #116cd6; /* Stole the active color from Photon */
+  color: white;
+}
+
 table.data-table td input {
   border: none;
+  background-color: transparent;
   margin: 0;
   padding: 4px;
   width: 100%;
@@ -182,9 +221,13 @@ table.data-table th input {
 }
 
 table.data-table th.row-number, table.data-table td.row-number {
-  padding: 4px;
   background-color: rgb(230, 230, 230);
   text-align: right;
   width: 25px; /* Make sure the row numbers look nice */
+}
+
+table.data-table td.row-number span {
+  display: block;
+  padding: 4px;
 }
 </style>

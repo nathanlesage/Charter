@@ -64,10 +64,14 @@
       they are treated. The button "Add row" will do precisely that.
     </p>
     <p>
-      After the data is in the app, you have the ability to modify it.
-      You can remove columns by clicking the small "x" to the right
-      of each column's data label. Also, you can edit each data cell
-      as well as each label.
+      After the data is in the app, you have the ability to modify it. You can
+      remove columns by clicking the small "x" to the right of each column's
+      data label. To remove rows, first select the row in question by clicking
+      its row number. The row will then become highlighted. Whenever you have
+      a row selected, a new button will appear in the sidebar with which you can
+      remove that row. To deselect the rows, click somewhere in the column label
+      row. Finally, you can edit each data cell as well as each label by
+      clicking into the cell.
       <strong>
         Changes are recognised after you leave the cell by clicking
         somewhere else (or use tab to move to the next cell).

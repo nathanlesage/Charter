@@ -49,6 +49,15 @@
         </button>
       </div>
 
+      <button
+        class="btn btn-large btn-negative"
+        v-if="selectedRow > -1"
+        v-on:click="$emit('removerow')"
+      >
+        <span class="icon icon-minus"></span>
+        Remove row
+      </button>
+
       <template v-if="Object.keys(dataset).length > 0">
         <p>Which column should form the labels and x-axis values in scatter plots?</p>
         <select
@@ -597,6 +606,10 @@ export default {
     currentView: {
       type: String,
       default: 'data'
+    },
+    selectedRow: {
+      type: Number,
+      default: -1
     },
     // Holds the chart dimensions as they would be output
     chartDimensions: {

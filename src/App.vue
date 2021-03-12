@@ -46,6 +46,7 @@
           <!-- BEGIN OPTION VIEWER SIDEBAR CONTENTS -->
           <SidebarOptions
             v-bind:current-view="currentView"
+            v-bind:selected-row="selectedRow"
             v-bind:chart-dimensions="chartDimensions"
             v-model="chartOptions"
             v-bind:chart-type="chartType"
@@ -57,6 +58,7 @@
             v-on:datasetoptions="datasetOptions = $event"
             v-on:addset="addDataset()"
             v-on:addrow="addRow()"
+            v-on:removerow="removeRow()"
             v-on:export="exportChart(false)"
             v-on:copy="exportChart(true)"
           ></SidebarOptions>
@@ -64,8 +66,10 @@
         <!-- BEGIN: MAIN CONTENT -->
         <div class="pane" style="background-color: rgb(230, 230, 230);">
           <DataViewer
+            ref="data-viewer"
             v-if="currentView === 'data' && Object.keys(dataset).length > 0"
             v-model="dataset"
+            v-on:rowselection="selectedRow = $event"
           ></DataViewer>
           <template v-else-if="currentView === 'data'">
             <div class="padded-more">
@@ -127,6 +131,7 @@ export default {
   },
   data: function () {
     return {
+      selectedRow: -1, // Selected row in the data viewer
       chartDimensions: '0x0px', // Purely informative, holds the actual chart dimensions
       currentView: 'data', // Two views: data and chart
       colours: {}, // Contains user-defined colours, solely generated in the sidebar
@@ -230,6 +235,9 @@ export default {
       for (const key of Object.keys(this.dataset)) {
         this.dataset[key].push(0)
       }
+    },
+    removeRow: function () {
+      this.$refs['data-viewer'].removeRow()
     },
     exportChart: function (copy = false) {
       // First, get the base64 data
