@@ -98,20 +98,69 @@
     </p>
     <h4><a name="chart-options"></a>General Chart Options</h4>
     <p>
-      The next section contains general options. First you can select
-      the chart type. Available as of now are line charts, bar charts,
-      polar charts, pie charts, radar charts, and scatter plots. The
-      following options allow you to name your chart and determine if
-      and where you want to have a legend. The chart spacing can be
-      used if you don't want the chart to exactly align with the image
-      borders.
+      The next section contains general options. They are as follows:
     </p>
-    <p>
-      Lastly, you can set a colour for the whole chart. By default, charts have
-      a transparent background (Charter displays the chart on a white canvas,
-      but that is not the background colour of the chart). Here you can choose a
-      custom colour.
-    </p>
+    <dl>
+      <dt>Chart Type</dt>
+      <dd>
+        Select the chart type here. Available are line charts, bar charts, radar
+        charts, pie charts, polar charts, and scatter charts.
+      </dd>
+      <dt>Chart Title and Position</dt>
+      <dd>
+        Enter a title for your chart here, or leave the field empty. If you want
+        your chart title to consist of multiple lines, divide those by typing
+        "&lt;lf&gt;". The position can be top, left, bottom, or right.
+      </dd>
+      <dt>Chart Legend and Position</dt>
+      <dd>
+        If you want to include a legend for your chart, select a position. If
+        you don't want a legend, select "Hide legend".
+      </dd>
+      <dt>Chart Spacing</dt>
+      <dd>
+        Select the amount of padding between the edges of your chart and the
+        contents. This might be desirable if you choose a custom background
+        colour.
+      </dd>
+      <dt>Chart background color</dt>
+      <dd>
+        By default, Charter charts have a transparent background. This way they
+        fit to many different backgrounds. However, if you want or need an
+        explicit background colour, tick this box and then select the colour.
+      </dd>
+      <dt>Bar width (bar charts only)</dt>
+      <dd>
+        Sets the width of the bars in bar charts. If set to maximum, the bars
+        will touch each other. Set to a very low value to have them render as
+        thin lines. This setting mostly makes sense if you display multiple bars
+        per category. For single datasets, the category width might be the more
+        sensible choice.
+      </dd>
+      <dt>Category width (bar charts only)</dt>
+      <dd>
+        Sets the width of the chart's categories. If set to maximum, the
+        categories will touch each other.
+        <strong>
+          Note that for single datasets adjusting both settings will have an
+          additive effect.
+        </strong>
+      </dd>
+      <dt>Stacked (bar charts only)</dt>
+      <dd>
+        If checked, the bars will render on top of each other.
+      </dd>
+      <dt>Horizontal (bar charts only)</dt>
+      <dd>
+        If checked, the bars will render horizontally instead of vertically.
+      </dd>
+      <dt>Pie Chart Cutout (pie charts only)</dt>
+      <dd>
+        Determines the amount of space that is left empty in the middle of the
+        chart. The higher the value, the more "ring-like" the chart will become.
+        Leave at zero to have a normal pie chart.
+      </dd>
+    </dl>
     <h4><a name="dataset-options"></a>Dataset Customisation</h4>
     <p>
       Next, you can customise each dataset. Select the dataset using
