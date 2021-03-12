@@ -69,15 +69,45 @@ export default {
         const options = this.datasetOptions[labels[i]]
         const barChartOptions = this.options.barChart
 
+        // Now we need to fiddle a little bit with the colours. First, we need
+        // some generic colours that apply by default.
+        const defaultSolidColor = (options.colour !== undefined) ? options.colour.toString(1) : ''
+        const defaultAlphaColor = (options.colour !== undefined) ? options.colour.toString(): ''
+        const inverseSolidColor = (options.colour !== undefined) ? options.colour.inverseString(1): ''
+        const inverseAlphaColor = (options.colour !== undefined) ? options.colour.inverseString(): ''
+
+        // Apply these colors first.
+        let bColor = defaultSolidColor
+        let pBgColor = defaultSolidColor
+        let bgColor = defaultAlphaColor
+        let hBgColor = inverseAlphaColor
+        let hBColor = inverseSolidColor
+
+        // Now, if we have a pie chart, or a bar chart with just one data type,
+        // we must instead apply an array of colours. For simplicity's sake, we
+        // will simply use an array of shades computed from the actual bar
+        // bar colour.
+        const shadesNeeded = this.chartType === 'pie' || ['bar', 'horizontalBar'].includes(this.chartType) && data.length === 2
+        if (shadesNeeded && options.colour !== undefined) {
+          const solidArray = options.colour.shadeArray(data[i].length, 1)
+          const alphaArray = options.colour.shadeArray(data[i].length)
+
+          bColor = solidArray
+          pBgColor = solidArray
+          bgColor = alphaArray
+        }
+
         chartDatasets.push({
           label: labels[i],
           data: data[i],
           // Border colour and point background are both always opacity 1,
           // but the background colour can differ, which is why we take the
           // alpha saved within the colour.
-          borderColor: (options.colour !== undefined) ? options.colour.toString(1) : '',
-          pointBackgroundColor: (options.colour !== undefined) ? options.colour.toString(1) : '',
-          backgroundColor: (options.colour !== undefined) ? options.colour.toString(): '',
+          borderColor: bColor,
+          pointBackgroundColor: pBgColor,
+          backgroundColor: bgColor,
+          hoverBackgroundColor: hBgColor,
+          hoverBoderColor: hBColor,
           pointStyle: options.pointStyle,
           pointRadius: options.pointRadius,
           tension: options.tension,
