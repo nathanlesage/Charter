@@ -772,6 +772,11 @@ export default {
       // to get a TSV file right than it is to force Excel to produce a simple
       // chart.
       const ext = fileName.substr(fileName.lastIndexOf('.'))
+      if (![ '.tsv', '.csv' ].includes(ext)) {
+        alert(`Unrecognised file extension: "${ext}".\n\nPlease select a ".csv" or ".tsv" file to load.`)
+        return
+      }
+
       const isTSV = ext.toLowerCase() === '.tsv'
       // const isCSV = ext.toLowerCase() === '.csv'
 

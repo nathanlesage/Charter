@@ -92,7 +92,10 @@
     </div>
 
     <footer class="toolbar toolbar-footer">
-      <h1 class="title">Charter | &copy; 2021 Hendrik Erz | Powered by <a href="https://vuejs.org/" rel="nofollow" target="_blank">Vue.js</a> and <a href="https://www.chartjs.org/" rel="nofollow" target="_blank">Chart.js</a> | Use at your own risk ❤️</h1>
+      <h1 class="title">Charter <strong>v{{ charterVersion }}</strong>
+      | &copy; 2021 <a href="https://www.hendrik-erz.de/" target="_blank">Hendrik Erz</a>
+      | Powered by <a href="https://vuejs.org/" rel="nofollow" target="_blank">Vue.js</a> and <a href="https://www.chartjs.org/" rel="nofollow" target="_blank">Chart.js</a>
+      | Handle with care ❤️</h1>
     </footer>
   </div>
 </template>
@@ -105,6 +108,7 @@ import InfoViewer from './InfoViewer'
 import SidebarOptions from './SidebarOptions'
 import b64toBlob from 'b64-to-blob'
 import sanitize from 'sanitize-filename'
+import { version } from '../package.json'
 
 /**
  * A WORD ON THE DATA STRUCTURE AND HANDLING
@@ -197,6 +201,11 @@ export default {
           }
         }
       } // This contains all the chart options
+    }
+  },
+  computed: {
+    charterVersion: function () {
+      return version
     }
   },
   watch: {

@@ -222,7 +222,7 @@ export default {
         title: {
           // Only display title if set
           display: this.options.title.text.trim() !== '',
-          text: this.options.title.text,
+          text: this.options.title.text.split('<lf>'), // Enable multi-line with "<lf>"
           position: this.options.title.position
         },
         // Determine the resolution of the chart (necessary for exporting)
