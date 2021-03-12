@@ -117,10 +117,10 @@
             'btn': true,
             'btn-mini': true,
             'btn-default': true,
-            'active': chartType === 'bar'
+            'active': chartType === 'bar' || chartType === 'horizontalBar'
           }"
           title="Bar chart"
-          v-on:click="$emit('charttype', 'bar')"
+          v-on:click="(value.barChart.horizontal) ? $emit('charttype', 'horizontalBar') : $emit('charttype', 'bar')"
         >
           <span class="icon icon-chart-bar"></span>
         </button>
@@ -253,7 +253,7 @@
       </div>
 
       <!-- Now settings for specific chart types -->
-      <template v-if="chartType === 'bar'">
+      <template v-if="chartType === 'bar' || chartType === 'horizontalBar'">
         <!-- TODO: Enable barPercentage and categoryPercentage (0-1) -->
         <label for="barchart-bar-percentage"><strong>Bar width</strong></label>
         <input
@@ -713,11 +713,19 @@ export default {
       newValue.resolution = parseInt(this.$refs['export-resolution'].value, 10)
 
       // We need to make sure these elements are in fact rendered.
-      if (this.chartType === 'bar') {
+      if (['bar', 'horizontalBar'].includes(this.chartType)) {
         newValue.barChart.barPercentage = parseFloat(this.$refs['barchart-bar-percentage'].value)
         newValue.barChart.categoryPercentage = parseFloat(this.$refs['barchart-cat-percentage'].value)
         newValue.barChart.stacked = this.$refs['barchart-stacked'].checked
+
+        // We need to transform the chartType itself if this here changes
         newValue.barChart.horizontal = this.$refs['barchart-horizontal'].checked
+
+        if (newValue.barChart.horizontal && this.chartType === 'bar') {
+          this.$nextTick(() => { this.$emit('charttype', 'horizontalBar') })
+        } else if (!newValue.barChart.horizontal && this.chartType === 'horizontalBar') {
+          this.$nextTick(() => { this.$emit('charttype', 'bar') })
+        }
       } else if (this.chartType === 'pie') {
         newValue.pieChart.cutoutPercentage = parseInt(this.$refs['piechart-cutout'].value, 10)
       }

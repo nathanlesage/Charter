@@ -115,20 +115,16 @@ export default {
       }
 
       const resChanged = this.chart.options.devicePixelRatio !== this.options.resolution
-      const barHorizontal = newOptions.barChart.horizontal !== oldOptions.barChart.horizontal
 
-      if (resChanged || barHorizontal) {
+      if (resChanged) {
         // We need to re-create the whole thing
         this.createChart()
       } else {
         // Updating suffices
         this.chart.options = this.getChartOptions()
+        // Finally, update the chart
+        this.chart.update()
       }
-
-
-
-      // Finally, update the chart
-      this.chart.update()
     }
   },
   mounted: function () {
