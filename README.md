@@ -14,6 +14,17 @@ The workflow with Charter is simple:
 
 And the best is: Because it fulfills exactly one purpose there is no winning in taking money for it. It's free and Open Source. It's basically your computer's built-in calculator -- only for charts.
 
+## Development
+
+As this is just a regular TypeScript app, you can follow the standard workflow. This means, have NodeJS and optionally yarn installed, then run:
+
+1. `git clone`
+2. `yarn install` or `npm install`
+3. To build, run `yarn build:web` or `npm run build:web`
+4. If you want to test it out locally, run `yarn start` or `npm run start`. This will spin up electron with the app in a browser window.
+
+I originally planned to do an Electron app, and I was too lazy to remove the Electron dependencies because I figured that it at least looks nice to have that app testable on my computer. Yes I know it's not the most efficient way, but it works 🤷.
+
 ## License
 
 This software and all of its accompanying source code is licensed via the GNU GPL 3.0 license. You can view the full text of the license in the [LICENSE](./LICENSE) file.
