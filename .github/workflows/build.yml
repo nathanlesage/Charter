@@ -1,0 +1,38 @@
+# Builds and deploys the app on updates
+name: Build
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    # Get the repo
+    - uses: actions/checkout@v1
+    # Install Node
+    - name: Setup NodeJS 14.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14.x'
+    # Install dependencies
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
+    # Build
+    - name: Build the app
+      run: yarn build:web
+
+    # Deploy to the server
+    - name: Deploy to production
+      uses: easingthemes/ssh-deploy@v2.0.7
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        ARGS: "-vzhr"
+        SOURCE: "dist/"
+        REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+        REMOTE_USER: ${{ secrets.REMOTE_USER }}
+        TARGET: ${{ secrets.TARGET }}
