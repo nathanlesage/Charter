@@ -8,8 +8,7 @@
   "license": "GPL-3.0-only",
   "private": false,
   "scripts": {
-    "start": "electron-forge start",
-    "package": "electron-forge package",
+    "start": "webpack serve --config ./webpack.renderer.config.js",
     "lint": "eslint --ext js,ts,vue src",
     "build:web": "NODE_ENV=production webpack --config ./webpack.renderer.config.js"
   },
@@ -20,26 +19,23 @@
     "rgb-hex": "^3.0.0",
     "sanitize-filename": "^1.6.3"
   },
-  "config": {
-    "forge": "./forge.config.js"
-  },
   "devDependencies": {
-    "@electron-forge/cli": "^6.0.0-beta.54",
-    "@electron-forge/plugin-webpack": "^6.0.0-beta.54",
     "@typescript-eslint/eslint-plugin": "^4.17.0",
     "@typescript-eslint/parser": "^4.17.0",
     "css-loader": "^5.1.1",
-    "electron": "^12.0.0",
     "eslint": "^7.21.0",
     "eslint-plugin-import": "^2.22.1",
     "file-loader": "^6.2.0",
     "fork-ts-checker-webpack-plugin": "^6.1.1",
+    "html-webpack-plugin": "^5.3.1",
     "style-loader": "^2.0.0",
     "ts-loader": "^8.0.17",
     "typescript": "^4.2.3",
     "vue": "^2.6.12",
     "vue-loader": "^15.9.6",
     "vue-template-compiler": "^2.6.12",
-    "webpack-cli": "^4.5.0"
+    "webpack": "^5.28.0",
+    "webpack-cli": "^4.5.0",
+    "webpack-dev-server": "^3.11.2"
   }
 }
