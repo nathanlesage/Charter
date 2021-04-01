@@ -95,6 +95,7 @@
       <h1 class="title">Charter <strong>v{{ charterVersion }}</strong>
       | &copy; 2021 <a href="https://www.hendrik-erz.de/" target="_blank">Hendrik Erz</a>
       | Powered by <a href="https://vuejs.org/" rel="nofollow" target="_blank">Vue.js</a> and <a href="https://www.chartjs.org/" rel="nofollow" target="_blank">Chart.js</a>
+      | <a href="https://github.com/nathanlesage/Charter" target="_blank">View Code on GitHub</a>
       | Handle with care ❤️</h1>
     </footer>
   </div>
