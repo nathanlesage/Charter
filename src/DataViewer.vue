@@ -188,6 +188,7 @@ table.data-table {
   border-collapse: collapse;
   background-color: white;
 }
+
 table.data-table td, table.data-table th {
   border: 1px solid #aaa;
   padding: 0;

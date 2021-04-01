@@ -275,5 +275,12 @@ export default {
 </script>
 
 <style>
-/* Such empty */
+/*
+  We have to explicitly allow user selection on all inputs. Otherwise, the app
+  breaks on Safari (across all devices).
+*/
+input {
+  -webkit-user-select: initial;
+  user-select: initial;
+}
 </style>
