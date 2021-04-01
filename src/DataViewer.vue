@@ -14,7 +14,7 @@
           <input
             type="text"
             v-bind:value="item"
-            v-on:change="renameDataset(labelIndex, $event.target.value)"
+            v-on:input="renameDataset(labelIndex, $event.target.value)"
           >
           <!-- Enable removal of single datasets -->
           <span
@@ -40,7 +40,7 @@
           v-if="colIndex > 0"
           type="text"
           v-bind:value="column"
-          v-on:change="handleInput(rowIndex, colIndex, $event.target.value)"
+          v-on:input="handleInput(rowIndex, colIndex, $event.target.value)"
         >
         <span
           v-else
@@ -122,11 +122,6 @@ export default {
       // the dataset itself!
       const newValue = {}
 
-      // First make sure we have a valid value
-      if (value.trim() === '') {
-        value = 0
-      }
-
       // Deep clone our data
       for (const dataset in this.value) {
         newValue[dataset] = this.value[dataset].map(elem => elem)
@@ -135,17 +130,18 @@ export default {
       // Now we just need to find the correct dataset. Charter supports two basic
       // types of input: Strings and numbers.
       const dataset = this.labels[col]
-      if (/^[\d\.,]+$/.test(value)) {
-        newValue[dataset][row] = parseFloat(value)
-      } else {
-        newValue[dataset][row] = value
-      }
+      newValue[dataset][row] = value
 
       this.$emit('input', newValue)
     },
     renameDataset: function (labelID, newName) {
       const oldName = this.labels[labelID]
       const newValue = {}
+      if (Object.keys(this.value).includes(newName)) {
+        console.warn(`The new dataset name for ${oldName}, ${newName} is already taken. Modifying ...`)
+        newName += ' (1)' // Four characters to remove for the user, I think that's okay.
+      }
+
       for (const dataset in this.value) {
         if (dataset === oldName) {
           newValue[newName] = this.value[oldName].map(elem => elem)
