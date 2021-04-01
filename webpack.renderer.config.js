@@ -1,13 +1,7 @@
 const path = require('path')
-const rules = require('./webpack.rules')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 const HTMLWebpackPlugin = require('html-webpack-plugin')
-
-rules.push({
-  test: /\.css$/,
-  use: [{ loader: 'style-loader' }, { loader: 'css-loader' }],
-});
 
 module.exports = {
   entry: {
@@ -19,7 +13,41 @@ module.exports = {
     publicPath: "/"
   },
   module: {
-    rules
+    rules: [
+      {
+        test: /\.tsx?$/,
+        exclude: /(node_modules|\.webpack)/,
+        use: {
+          loader: 'ts-loader',
+          options: {
+            transpileOnly: true
+          }
+        }
+      },
+      {
+        test: /\.vue$/,
+        loader: 'vue-loader'
+      },
+      {
+        // Handle font files: just copy them
+        test: /\.(woff|woff2|eot|ttf|otf)$/,
+        use: {
+          loader: 'file-loader',
+          options: {
+            // Do not wrap in js module
+            esModule: false,
+            name: '[path][name].[ext]'
+          }
+        }
+      },
+      {
+        test: /\.css$/,
+        use: [
+          { loader: 'style-loader' },
+          { loader: 'css-loader' }
+        ]
+      }
+    ]
   },
   plugins: [
     // Enhanced typescript support (e.g. moves typescript type checking to separate process)
