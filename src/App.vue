@@ -152,7 +152,7 @@ export default {
         // Specific options for bar charts
         barChart: {
           barPercentage: 0.8,
-          categoryPercentage: 8.0,
+          categoryPercentage: 0.8,
           stacked: false,
           horizontal: false
         },
@@ -174,7 +174,7 @@ export default {
         },
         xAxis: {
           label: '',
-          gridLines: {
+          grid: {
             display: true, // Whether to display them at all
             drawOnChartArea: true, // Gridlines on the chart
             drawTicks: true // Gridlines off the charts, so to speak
@@ -189,7 +189,7 @@ export default {
         yAxis: {
           beginAtZero: false,
           label: '',
-          gridLines: {
+          grid: {
             display: true, // Whether to display them at all
             drawOnChartArea: true, // Gridlines on the chart
             drawTicks: true // Gridlines off the charts, so to speak

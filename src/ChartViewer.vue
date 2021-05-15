@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import Chart from 'chart.js'
+import Chart from 'chart.js/auto'
 
 export default {
   name: 'ChartViewer',
@@ -87,7 +87,7 @@ export default {
         // we must instead apply an array of colours. For simplicity's sake, we
         // will simply use an array of shades computed from the actual bar
         // bar colour.
-        const shadesNeeded = this.chartType === 'pie' || ['bar', 'horizontalBar'].includes(this.chartType) && data.length === 2
+        const shadesNeeded = (this.chartType === 'pie' || this.chartType === 'bar') && data.length === 2
         if (shadesNeeded && options.colour !== undefined) {
           const solidArray = options.colour.shadeArray(data[i].length, 1)
           const alphaArray = options.colour.shadeArray(data[i].length)
@@ -181,13 +181,8 @@ export default {
         this.chart.destroy()
       }
 
-      let chartType = this.chartType
-      if (chartType === 'bar' && this.options.barChart.horizontal) {
-        chartType = 'horizontalBar'
-      }
-
       this.chart = new Chart(this.$refs.chart, {
-        type: chartType,
+        type: this.chartType,
         data: {
           labels: this.dataset[this.useAsLabels], // Might be undefined, but doesn't throw
           datasets: this.chartData
@@ -217,14 +212,14 @@ export default {
       }) // END chart instantiation
     },
     getChartOptions: function () {
+      // Two variables we need for horizontal bar charts
+      const isBar = this.chartType === 'bar'
+      const isHorizontal = this.options.barChart.horizontal
+
       // First all options that we can define inline
       const options = {
-        title: {
-          // Only display title if set
-          display: this.options.title.text.trim() !== '',
-          text: this.options.title.text.split('<lf>'), // Enable multi-line with "<lf>"
-          position: this.options.title.position
-        },
+        // Horizontal bar charts have y as the index axis
+        indexAxis: (isBar && isHorizontal) ? 'y' : 'x',
         // Determine the resolution of the chart (necessary for exporting)
         devicePixelRatio: this.options.resolution,
         layout: {
@@ -235,42 +230,36 @@ export default {
             bottom: this.options.padding
           },
         },
-        legend: this.options.legend,
         // Scales configuration
         scales: {
-          yAxes: [{
-            scaleLabel: {
+          y: {
+            title: {
               display: this.options.yAxis.label.trim() !== '',
-              labelString: this.options.yAxis.label
+              text: this.options.yAxis.label
             },
-            gridLines: this.options.yAxis.gridLines,
+            grid: this.options.yAxis.grid,
+            beginAtZero: this.options.yAxis.beginAtZero,
             ticks: {
               display: this.options.yAxis.ticks.display,
-              beginAtZero: this.options.yAxis.beginAtZero
             }
-          }],
-          xAxes: [{
-            scaleLabel: {
+          },
+          x: {
+            title: {
               display: this.options.xAxis.label.trim() !== '',
-              labelString: this.options.xAxis.label
+              text: this.options.xAxis.label
             },
-            gridLines: this.options.xAxis.gridLines,
+            grid: this.options.xAxis.grid,
             ticks: {
               display: this.options.xAxis.ticks.display
             },
             // Will be respected if this is a bar chart
             stacked: this.options.barChart.stacked
-          }]
+          }
         },
         // Generic options we need every time
         responsive: true,
         maintainAspectRatio: false,
         cutoutPercentage: this.options.pieChart.cutoutPercentage,
-        // Tooltips should be fastly visible, b/c they won't be exported either way
-        tooltips: {
-          mode: 'index',
-          intersect: false,
-        },
         hover: {
           mode: 'index',
           intersect: false
@@ -279,6 +268,18 @@ export default {
           background: {
             draw: this.options.drawChartBackground,
             color: this.options.chartBackgroundColor
+          },
+          // Tooltips should be fastly visible, b/c they won't be exported either way
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+          },
+          legend: this.options.legend,
+          title: {
+            // Only display title if set
+            display: this.options.title.text.trim() !== '',
+            text: this.options.title.text.split('<lf>'), // Enable multi-line with "<lf>"
+            position: this.options.title.position
           }
         }
       }
@@ -292,13 +293,13 @@ export default {
       const afterYValue = this.options.yAxis.ticks.afterValue
 
       if (beforeXValue.trim() !== '' || afterXValue.trim() !== '') {
-        options.scales.xAxes[0].ticks.callback = function (value, index, allValues) {
+        options.scales.x.ticks.callback = function (value, index, allValues) {
           return `${beforeXValue}${value}${afterXValue}`
         }
       }
 
       if (beforeYValue.trim() !== '' || afterYValue.trim() !== '') {
-        options.scales.yAxes[0].ticks.callback = function (value, index, allValues) {
+        options.scales.y.ticks.callback = function (value, index, allValues) {
           return `${beforeYValue}${value}${afterYValue}`
         }
       }

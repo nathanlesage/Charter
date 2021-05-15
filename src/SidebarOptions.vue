@@ -126,10 +126,10 @@
             'btn': true,
             'btn-mini': true,
             'btn-default': true,
-            'active': chartType === 'bar' || chartType === 'horizontalBar'
+            'active': chartType === 'bar'
           }"
           title="Bar chart"
-          v-on:click="(value.barChart.horizontal) ? $emit('charttype', 'horizontalBar') : $emit('charttype', 'bar')"
+          v-on:click="$emit('charttype', 'bar')"
         >
           <span class="icon icon-chart-bar"></span>
         </button>
@@ -213,7 +213,7 @@
         </select>
       </div>
 
-      <label><strong>Chart legend and Position</strong></label>
+      <label><strong>Chart legend and position</strong></label>
       <select
         ref="legend-position"
         class="form-control"
@@ -262,7 +262,7 @@
       </div>
 
       <!-- Now settings for specific chart types -->
-      <template v-if="chartType === 'bar' || chartType === 'horizontalBar'">
+      <template v-if="chartType === 'bar'">
         <!-- TODO: Enable barPercentage and categoryPercentage (0-1) -->
         <label for="barchart-bar-percentage"><strong>Bar width</strong></label>
         <input
@@ -288,7 +288,7 @@
           v-bind:value="value.barChart.categoryPercentage"
           v-on:input="setOptions()"
         >
-        <!-- TODO: Enable stacked and horizontal bar chart -->
+
         <div class="checkbox">
           <label>
             <input
@@ -296,7 +296,7 @@
               type="checkbox"
               v-bind:checked="value.barChart.stacked"
               v-on:input="setOptions()"
-            > Stacked
+            > Stacked bar chart
           </label>
         </div>
         <div class="checkbox">
@@ -306,7 +306,7 @@
               type="checkbox"
               v-bind:checked="value.barChart.horizontal"
               v-on:input="setOptions()"
-            > Horizontal
+            > Horizontal bar chart
           </label>
         </div>
       </template>
@@ -461,7 +461,7 @@
           <input
             ref="xaxisgrid-display"
             type="checkbox"
-            v-bind:checked="value.xAxis.gridLines.display"
+            v-bind:checked="value.xAxis.grid.display"
             v-on:input="setOptions()"
           > Display the x-axis grid
         </label>
@@ -472,8 +472,8 @@
           <input
             ref="xaxisgrid-drawonchartarea"
             type="checkbox"
-            v-bind:checked="value.xAxis.gridLines.drawOnChartArea"
-            v-bind:disabled="!value.xAxis.gridLines.display"
+            v-bind:checked="value.xAxis.grid.drawOnChartArea"
+            v-bind:disabled="!value.xAxis.grid.display"
             v-on:input="setOptions()"
           > Gridlines
         </label>
@@ -484,8 +484,8 @@
           <input
             ref="xaxisgrid-drawticks"
             type="checkbox"
-            v-bind:checked="value.xAxis.gridLines.drawTicks"
-            v-bind:disabled="!value.xAxis.gridLines.display"
+            v-bind:checked="value.xAxis.grid.drawTicks"
+            v-bind:disabled="!value.xAxis.grid.display"
             v-on:input="setOptions()"
           > Tick lines
         </label>
@@ -537,7 +537,7 @@
           <input
             ref="yaxisgrid-display"
             type="checkbox"
-            v-bind:checked="value.yAxis.gridLines.display"
+            v-bind:checked="value.yAxis.grid.display"
             v-on:input="setOptions()"
           > Display the x-axis grid
         </label>
@@ -548,8 +548,8 @@
           <input
             ref="yaxisgrid-drawonchartarea"
             type="checkbox"
-            v-bind:checked="value.yAxis.gridLines.drawOnChartArea"
-            v-bind:disabled="!value.yAxis.gridLines.display"
+            v-bind:checked="value.yAxis.grid.drawOnChartArea"
+            v-bind:disabled="!value.yAxis.grid.display"
             v-on:input="setOptions()"
           > Gridlines
         </label>
@@ -560,8 +560,8 @@
           <input
             ref="yaxisgrid-drawticks"
             type="checkbox"
-            v-bind:checked="value.yAxis.gridLines.drawTicks"
-            v-bind:disabled="!value.yAxis.gridLines.display"
+            v-bind:checked="value.yAxis.grid.drawTicks"
+            v-bind:disabled="!value.yAxis.grid.display"
             v-on:input="setOptions()"
           > Ticks
         </label>
@@ -726,29 +726,21 @@ export default {
       newValue.resolution = parseInt(this.$refs['export-resolution'].value, 10)
 
       // We need to make sure these elements are in fact rendered.
-      if (['bar', 'horizontalBar'].includes(this.chartType)) {
+      if (this.chartType === 'bar') {
         newValue.barChart.barPercentage = parseFloat(this.$refs['barchart-bar-percentage'].value)
         newValue.barChart.categoryPercentage = parseFloat(this.$refs['barchart-cat-percentage'].value)
         newValue.barChart.stacked = this.$refs['barchart-stacked'].checked
-
-        // We need to transform the chartType itself if this here changes
         newValue.barChart.horizontal = this.$refs['barchart-horizontal'].checked
-
-        if (newValue.barChart.horizontal && this.chartType === 'bar') {
-          this.$nextTick(() => { this.$emit('charttype', 'horizontalBar') })
-        } else if (!newValue.barChart.horizontal && this.chartType === 'horizontalBar') {
-          this.$nextTick(() => { this.$emit('charttype', 'bar') })
-        }
       } else if (this.chartType === 'pie') {
         newValue.pieChart.cutoutPercentage = parseInt(this.$refs['piechart-cutout'].value, 10)
       }
 
-      newValue.xAxis.gridLines.display = this.$refs['xaxisgrid-display'].checked
-      newValue.xAxis.gridLines.drawOnChartArea = this.$refs['xaxisgrid-drawonchartarea'].checked
-      newValue.xAxis.gridLines.drawTicks = this.$refs['xaxisgrid-drawticks'].checked
-      newValue.yAxis.gridLines.display = this.$refs['yaxisgrid-display'].checked
-      newValue.yAxis.gridLines.drawOnChartArea = this.$refs['yaxisgrid-drawonchartarea'].checked
-      newValue.yAxis.gridLines.drawTicks = this.$refs['yaxisgrid-drawticks'].checked
+      newValue.xAxis.grid.display = this.$refs['xaxisgrid-display'].checked
+      newValue.xAxis.grid.drawOnChartArea = this.$refs['xaxisgrid-drawonchartarea'].checked
+      newValue.xAxis.grid.drawTicks = this.$refs['xaxisgrid-drawticks'].checked
+      newValue.yAxis.grid.display = this.$refs['yaxisgrid-display'].checked
+      newValue.yAxis.grid.drawOnChartArea = this.$refs['yaxisgrid-drawonchartarea'].checked
+      newValue.yAxis.grid.drawTicks = this.$refs['yaxisgrid-drawticks'].checked
 
       newValue.xAxis.label = this.$refs['xaxis-label'].value
       newValue.yAxis.label = this.$refs['yaxis-label'].value
@@ -863,7 +855,7 @@ export default {
           const valuesAbove = 255 - this.r + 255 - this.g + 255 - this.b
           // All three components add up to 765, so the sum is 762 (minus the
           // three components from our actual colour).
-          const sum = 762
+          // const sum = 762
           // How many bins do we need? This determines the distance between colours.
           const part = 762 / numShades
           // Now we can see how often these parts fit into the two slices of the
