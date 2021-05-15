@@ -15,6 +15,7 @@
             type="text"
             v-bind:value="item"
             v-on:input="renameDataset(labelIndex, $event.target.value)"
+            v-on:focus="$event.target.select()"
           >
           <!-- Enable removal of single datasets -->
           <span
@@ -41,6 +42,7 @@
           type="text"
           v-bind:value="column"
           v-on:input="handleInput(rowIndex, colIndex, $event.target.value)"
+          v-on:focus="$event.target.select()"
         >
         <span
           v-else
@@ -199,20 +201,20 @@ table.data-table td.selected, table.data-table td.row-number.selected {
   color: white;
 }
 
-table.data-table td input {
+table.data-table input {
+  cursor: text;
   border: none;
-  background-color: transparent;
-  margin: 0;
+  margin: 0;  
   padding: 4px;
   width: 100%;
+}
+
+table.data-table td input {
+  background-color: transparent;
   text-align: right;
 }
 
 table.data-table th input {
-  border: none;
-  margin: 0;
-  padding: 4px;
-  width: 100%;
   font-weight: bold;
   background-color: rgb(230, 230, 230);
 }
