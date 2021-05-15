@@ -192,20 +192,21 @@ export default {
           {
             // This custom plugin simply draws a rectangle that fills the whole
             // background of the chart with a single colour.
+            // After 3.x migration adapted from https://www.chartjs.org/docs/master/configuration/canvas-background.html
             id: 'background',
             beforeDraw: function (chart, mysteryOption, pluginOptions) {
-              if (!pluginOptions.draw) {
+              const { draw, color } = pluginOptions
+              if (!draw) {
                 return // Leave the transparent background
               }
 
-              // Fill the complete background with a colour of our choice.
-              const width = chart.chart.width
-              const height = chart.chart.height
-
-              const oldStyle = chart.chart.ctx.fillStyle
-              chart.chart.ctx.fillStyle = pluginOptions.color
-              chart.chart.ctx.fillRect(0, 0, width, height)
-              chart.chart.ctx.fillStyle = oldStyle
+              const ctx = chart.canvas.getContext('2d')
+              ctx.save() // Save context settings, e.g. the fillStyle
+              // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/globalCompositeOperation
+              ctx.globalCompositeOperation = 'destination-over'
+              ctx.fillStyle = color
+              ctx.fillRect(0, 0, chart.width, chart.height)
+              ctx.restore() // Restore the previous settings, e.g., the fillStyle
             }
           }
         ]
