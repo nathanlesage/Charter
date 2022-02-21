@@ -20,7 +20,7 @@
 
       <button
           class="btn btn-large btn-default"
-          v-on:click="$refs['file-input'].click()"
+          v-on:click="startFileupload()"
         >
           <span class="icon icon-list"></span>
           Load file
@@ -49,22 +49,22 @@
         </button>
       </div>
 
-      <button
+      <!--  <button
         class="btn btn-large btn-negative"
         v-if="selectedRow > -1"
         v-on:click="$emit('removerow')"
       >
         <span class="icon icon-minus"></span>
         Remove row
-      </button>
+      </button>  -->
 
       <template v-if="Object.keys(dataset).length > 0">
         <p>Which column should form the labels and x-axis values in scatter plots?</p>
         <select
           ref="use-as-labels"
           class="form-control"
-          v-bind:value="useAsLabels"
-          v-on:input="$emit('useaslabels', $event.target.value)"
+          v-bind:value="labelDataset"
+          v-on:input="setLabelDataset(($event.target as any).value)"
         >
           <option value="">No label dataset</option>
           <option
@@ -76,6 +76,7 @@
       </template>
 
     </template>
+
     <!-- CHART VIEWER OPTIONS -->
     <template v-else-if="currentView === 'chart'">
       <div class="btn-group padded-vertically-less">
@@ -93,7 +94,7 @@
         </button>
       </div>
 
-      <label for="export-resolution"><strong>Export resolution</strong> ({{ chartDimensions }})</label>
+      <label for="export-resolution"><strong>Export resolution</strong></label>
       <input
         ref="export-resolution"
         id="export-resolution"
@@ -101,7 +102,7 @@
         type="range"
         min="1"
         max="10"
-        v-bind:value="value.resolution"
+        v-bind:value="chartOptions.resolution"
         v-on:input="setOptions()"
       >
       <hr>
@@ -117,7 +118,7 @@
             'active': chartType === 'line'
           }"
           title="Line chart"
-          v-on:click="$emit('charttype', 'line')"
+          v-on:click="setChartType('line')"
         >
           <span class="icon icon-chart-line"></span>
         </button>
@@ -129,7 +130,7 @@
             'active': chartType === 'bar'
           }"
           title="Bar chart"
-          v-on:click="$emit('charttype', 'bar')"
+          v-on:click="setChartType('bar')"
         >
           <span class="icon icon-chart-bar"></span>
         </button>
@@ -141,7 +142,7 @@
             'active': chartType === 'radar'
           }"
           title="Radar chart"
-          v-on:click="$emit('charttype', 'radar')"
+          v-on:click="setChartType('radar')"
         >
           <!-- target = radar -->
           <span class="icon icon-target"></span>
@@ -154,7 +155,7 @@
             'active': chartType === 'pie'
           }"
           title="Pie chart"
-          v-on:click="$emit('charttype', 'pie')"
+          v-on:click="setChartType('pie')"
         >
           <span class="icon icon-chart-pie"></span>
         </button>
@@ -166,7 +167,7 @@
             'active': chartType === 'polarArea'
           }"
           title="Polar chart"
-          v-on:click="$emit('charttype', 'polarArea')"
+          v-on:click="setChartType('polarArea')"
         >
           <!-- compass = polar -->
           <span class="icon icon-chart-area"></span>
@@ -179,7 +180,7 @@
             'active': chartType === 'scatter'
           }"
           title="Scatter plot"
-          v-on:click="$emit('charttype', 'scatter')"
+          v-on:click="setChartType('scatter')"
         >
           <!-- target = scatter -->
           <span class="icon icon-target"></span>
@@ -195,7 +196,7 @@
           type="text"
           class="form-control"
           placeholder="Chart title"
-          v-bind:value="value.title.text"
+          v-bind:value="chartOptions.title.text"
           v-on:input="setOptions()"
         >
       </div>
@@ -203,7 +204,7 @@
         <select
           ref="title-position"
           class="form-control"
-          v-bind:value="value.title.position"
+          v-bind:value="chartOptions.title.position"
           v-on:input="setOptions()"
         >
           <option value="top">Top</option>
@@ -227,7 +228,20 @@
         <option value="bottom">Bottom</option>
       </select>
 
-      <label for="layout-padding"><strong>Chart spacing</strong> ({{ value.padding }}px)</label>
+      <label for="barchart-bar-percentage"><strong>Font size</strong></label>
+      <input
+        ref="chart-font-size"
+        id="chart-font-size"
+        class="form-control"
+        type="number"
+        min="2"
+        max="200"
+        step="1"
+        v-bind:value="chartOptions.fontSize"
+        v-on:input="setOptions()"
+      >
+
+      <label for="layout-padding"><strong>Chart spacing</strong> ({{ chartOptions.padding }}px)</label>
       <input
         ref="layout-padding"
         id="layout-padding"
@@ -235,7 +249,7 @@
         type="range"
         min="0"
         max="200"
-        v-bind:value="value.padding"
+        v-bind:value="chartOptions.padding"
         v-on:input="setOptions()"
       >
 
@@ -244,7 +258,7 @@
           <input
             ref="draw-chart-background"
             type="checkbox"
-            v-bind:checked="value.drawChartBackground"
+            v-bind:checked="chartOptions.drawChartBackground"
             v-on:input="setOptions()"
           > Chart background color
         </label>
@@ -255,8 +269,8 @@
         <input
           ref="chart-background-color"
           type="color"
-          v-bind:value="value.chartBackgroundColor"
-          v-bind:disabled="!value.drawChartBackground"
+          v-bind:value="chartOptions.chartBackgroundColor"
+          v-bind:disabled="!chartOptions.drawChartBackground"
           v-on:input="setOptions()"
         >
       </div>
@@ -273,7 +287,7 @@
           min="0"
           max="1"
           step="0.1"
-          v-bind:value="value.barChart.barPercentage"
+          v-bind:value="chartOptions.barChart.barPercentage"
           v-on:input="setOptions()"
         >
         <label for="barchart-cat-percentage"><strong>Category width</strong></label>
@@ -285,7 +299,7 @@
           min="0"
           max="1"
           step="0.1"
-          v-bind:value="value.barChart.categoryPercentage"
+          v-bind:value="chartOptions.barChart.categoryPercentage"
           v-on:input="setOptions()"
         >
 
@@ -294,7 +308,7 @@
             <input
               ref="barchart-stacked"
               type="checkbox"
-              v-bind:checked="value.barChart.stacked"
+              v-bind:checked="chartOptions.barChart.stacked"
               v-on:input="setOptions()"
             > Stacked bar chart
           </label>
@@ -304,7 +318,7 @@
             <input
               ref="barchart-horizontal"
               type="checkbox"
-              v-bind:checked="value.barChart.horizontal"
+              v-bind:checked="chartOptions.barChart.horizontal"
               v-on:input="setOptions()"
             > Horizontal bar chart
           </label>
@@ -320,7 +334,7 @@
           type="range"
           min="0"
           max="100"
-          v-bind:value="value.pieChart.cutoutPercentage"
+          v-bind:value="chartOptions.pieChart.cutoutPercentage"
           v-on:input="setOptions()"
         >
       </template>
@@ -332,12 +346,13 @@
       <select
         class="form-control"
         v-bind:value="activeDataset"
-        v-on:input="activeDataset = $event.target.value"
+        v-on:input="setActiveDataset(($event.target as any).value)"
       >
         <option
           v-for="dataset, key, index in datasetOptions"
           v-bind:key="index"
           v-bind:value="key"
+          v-bind:selected="activeDataset === key"
         >
           Dataset: {{ key }}
         </option>
@@ -348,7 +363,7 @@
           <input
             type="color"
             v-bind:value="'#' + datasetOptions[activeDataset].colour.toHex()"
-            v-on:input="updateColour(datasetOptions[activeDataset].colour, $event.target.value)"
+            v-on:input="updateColour(datasetOptions[activeDataset].colour, ($event.target as any).value)"
           >
         </div>
 
@@ -359,15 +374,15 @@
           min="0"
           max="1"
           step="0.1"
-          v-bind:value="datasetOptions[activeDataset].colour.a"
-          v-on:input="datasetOptions[activeDataset].colour.a = parseFloat($event.target.value)"
+          v-bind:value="datasetOptions[activeDataset].colour.alpha"
+          v-on:input="datasetOptions[activeDataset].colour.alpha = parseFloat(($event.target as any).value)"
         >
 
         <label>Point style</label>
         <select
           class="form-control"
           v-bind:value="datasetOptions[activeDataset].pointStyle"
-          v-on:input="datasetOptions[activeDataset].pointStyle = $event.target.value"
+          v-on:input="datasetOptions[activeDataset].pointStyle = ($event.target as any).value"
         >
           <option value="circle">Circle</option>
           <option value="cross">Cross</option>
@@ -388,7 +403,7 @@
           min="0"
           max="20"
           v-bind:value="datasetOptions[activeDataset].pointRadius"
-          v-on:input="datasetOptions[activeDataset].pointRadius = parseInt($event.target.value)"
+          v-on:input="datasetOptions[activeDataset].pointRadius = parseInt(($event.target as any).value)"
         >
 
         <label>Curvedness</label>
@@ -399,7 +414,7 @@
           max="1.0"
           step="0.1"
           v-bind:value="datasetOptions[activeDataset].tension"
-          v-on:input="datasetOptions[activeDataset].tension = parseFloat($event.target.value)"
+          v-on:input="datasetOptions[activeDataset].tension = parseFloat(($event.target as any).value)"
         >
 
         <label>Line Width</label>
@@ -409,7 +424,7 @@
           min="0"
           max="10"
           v-bind:value="datasetOptions[activeDataset].borderWidth"
-          v-on:input="datasetOptions[activeDataset].borderWidth = parseInt($event.target.value)"
+          v-on:input="datasetOptions[activeDataset].borderWidth = parseInt(($event.target as any).value)"
         >
 
         <div class="checkbox">
@@ -417,7 +432,7 @@
             <input
               type="checkbox"
               v-bind:checked="datasetOptions[activeDataset].fill"
-              v-on:input="datasetOptions[activeDataset].fill = $event.target.checked"
+              v-on:input="datasetOptions[activeDataset].fill = ($event.target as any).checked"
             > Fill area under curve
           </label>
         </div>
@@ -436,13 +451,13 @@
         v-on:input="setOptions()"
       >
 
-      <label class="padded-top">Customise ticks: {{ value.xAxis.ticks.beforeValue}}1.23{{ value.xAxis.ticks.afterValue }}</label>
+      <label class="padded-top">Customise ticks: {{ chartOptions.xAxis.ticks.beforeValue}}1.23{{ chartOptions.xAxis.ticks.afterValue }}</label>
 
       <input
         ref="xaxis-ticks-before"
         type="text"
         placeholder="Before tick labels, e.g. $"
-        v-bind:value="value.xAxis.ticks.beforeValue"
+        v-bind:value="chartOptions.xAxis.ticks.beforeValue"
         class="form-control"
         v-on:input="setOptions()"
       >
@@ -451,7 +466,7 @@
         ref="xaxis-ticks-after"
         type="text"
         placeholder="After tick labels, e.g. %"
-        v-bind:value="value.xAxis.ticks.afterValue"
+        v-bind:value="chartOptions.xAxis.ticks.afterValue"
         class="form-control"
         v-on:input="setOptions()"
       >
@@ -461,7 +476,7 @@
           <input
             ref="xaxisgrid-display"
             type="checkbox"
-            v-bind:checked="value.xAxis.grid.display"
+            v-bind:checked="chartOptions.xAxis.grid.display"
             v-on:input="setOptions()"
           > Display the x-axis grid
         </label>
@@ -472,8 +487,8 @@
           <input
             ref="xaxisgrid-drawonchartarea"
             type="checkbox"
-            v-bind:checked="value.xAxis.grid.drawOnChartArea"
-            v-bind:disabled="!value.xAxis.grid.display"
+            v-bind:checked="chartOptions.xAxis.grid.drawOnChartArea"
+            v-bind:disabled="!chartOptions.xAxis.grid.display"
             v-on:input="setOptions()"
           > Gridlines
         </label>
@@ -484,8 +499,8 @@
           <input
             ref="xaxisgrid-drawticks"
             type="checkbox"
-            v-bind:checked="value.xAxis.grid.drawTicks"
-            v-bind:disabled="!value.xAxis.grid.display"
+            v-bind:checked="chartOptions.xAxis.grid.drawTicks"
+            v-bind:disabled="!chartOptions.xAxis.grid.display"
             v-on:input="setOptions()"
           > Tick lines
         </label>
@@ -496,7 +511,7 @@
           <input
             ref="xaxisgrid-ticklabels"
             type="checkbox"
-            v-bind:checked="value.xAxis.ticks.display"
+            v-bind:checked="chartOptions.xAxis.ticks.display"
             v-on:input="setOptions()"
           > Tick labels
         </label>
@@ -512,13 +527,13 @@
         v-on:input="setOptions()"
       >
 
-      <label class="padded-top">Customise ticks: {{ value.yAxis.ticks.beforeValue}}1.23{{ value.yAxis.ticks.afterValue }}</label>
+      <label class="padded-top">Customise ticks: {{ chartOptions.yAxis.ticks.beforeValue}}1.23{{ chartOptions.yAxis.ticks.afterValue }}</label>
 
       <input
         ref="yaxis-ticks-before"
         type="text"
         placeholder="Before tick labels, e.g. $"
-        v-bind:value="value.yAxis.ticks.beforeValue"
+        v-bind:value="chartOptions.yAxis.ticks.beforeValue"
         class="form-control"
         v-on:input="setOptions()"
       >
@@ -527,7 +542,7 @@
         ref="yaxis-ticks-after"
         type="text"
         placeholder="After tick labels, e.g. %"
-        v-bind:value="value.yAxis.ticks.afterValue"
+        v-bind:value="chartOptions.yAxis.ticks.afterValue"
         class="form-control"
         v-on:input="setOptions()"
       >
@@ -537,9 +552,9 @@
           <input
             ref="yaxisgrid-display"
             type="checkbox"
-            v-bind:checked="value.yAxis.grid.display"
+            v-bind:checked="chartOptions.yAxis.grid.display"
             v-on:input="setOptions()"
-          > Display the x-axis grid
+          > Display the y-axis grid
         </label>
       </div>
 
@@ -548,8 +563,8 @@
           <input
             ref="yaxisgrid-drawonchartarea"
             type="checkbox"
-            v-bind:checked="value.yAxis.grid.drawOnChartArea"
-            v-bind:disabled="!value.yAxis.grid.display"
+            v-bind:checked="chartOptions.yAxis.grid.drawOnChartArea"
+            v-bind:disabled="!chartOptions.yAxis.grid.display"
             v-on:input="setOptions()"
           > Gridlines
         </label>
@@ -560,8 +575,8 @@
           <input
             ref="yaxisgrid-drawticks"
             type="checkbox"
-            v-bind:checked="value.yAxis.grid.drawTicks"
-            v-bind:disabled="!value.yAxis.grid.display"
+            v-bind:checked="chartOptions.yAxis.grid.drawTicks"
+            v-bind:disabled="!chartOptions.yAxis.grid.display"
             v-on:input="setOptions()"
           > Ticks
         </label>
@@ -572,7 +587,7 @@
           <input
             ref="yaxisgrid-ticklabels"
             type="checkbox"
-            v-bind:checked="value.yAxis.ticks.display"
+            v-bind:checked="chartOptions.yAxis.ticks.display"
             v-on:input="setOptions()"
           > Tick labels
         </label>
@@ -583,7 +598,7 @@
           <input
             ref="yaxis-beginatzero"
             type="checkbox"
-            v-bind:checked="value.yAxis.beginAtZero"
+            v-bind:checked="chartOptions.yAxis.beginAtZero"
             v-on:input="setOptions()"
           > Start axis values at y=0
         </label>
@@ -592,324 +607,227 @@
   </div>
 </template>
 
-<script>
-import Vue from 'vue'
+<script lang="ts">
+import { defineComponent, setTransitionHooks } from 'vue'
 import rgbHex from 'rgb-hex'
 import hexRgb from 'hex-rgb'
 
-import { version } from '../package.json'
-import { version as chartJSVersion } from 'chart.js/package.json'
+import mainPackage from '../package.json'
+import chartPackage from 'chart.js/package.json'
+import vuePackage from 'vue/package.json'
 
-export default {
+import { ChartOptions, ChartType, Dataset, DatasetOption, DatasetOptions } from './store'
+import Color from './color'
+
+export default defineComponent({
   name: 'SidebarOptions',
   props: {
     currentView: {
       type: String,
-      default: 'data'
-    },
-    selectedRow: {
-      type: Number,
-      default: -1
-    },
-    // Holds the chart dimensions as they would be output
-    chartDimensions: {
-      type: String,
-      default: '0x0px'
-    },
-    // This holds the chart configuration
-    value: {
-      type: Object,
-      default: function () { return {} }
-    },
-    chartType: {
-      type: String,
-      default: 'line'
-    },
-    dataset: {
-      type: Object,
-      default: function () { return {} }
-    },
-    useAsLabels: {
-      type: String,
-      default: ''
+      required: true
     }
   },
   data: function () {
     return {
       // Versioning information
-      charterVersion: version,
-      vueVersion: Vue.version,
-      chartJSVersion: chartJSVersion,
-      // This holds the options for the dataset. We will be managing these in
-      // this component rather than the app because this way the dataflow is
-      // simpler (as it doesn't have to go back and forth everytime).
-      datasetOptions: {},
-      activeDataset: '' // Holds the name of the active dataset
+      charterVersion: mainPackage.version,
+      vueVersion: vuePackage.version,
+      chartJSVersion: chartPackage.version
     }
   },
   computed: {
-    legendValuePosition: function () {
-      if (!this.value.legend.display) {
+    legendValuePosition: function (): string {
+      if (!this.chartOptions.legend.display) {
         return 'none' // Merge display + position into one option
       }
+
+      if (this.chartOptions.legend.position === undefined) {
+        return 'none'
+      }
       
-      return this.value.legend.position
+      return this.chartOptions.legend.position
+    },
+    dataset: function (): Dataset {
+      return this.$store.state.dataset
+    },
+    datasetOptions: function (): DatasetOptions {
+      return this.$store.state.datasetOptions
+    },
+    chartOptions: function (): ChartOptions {
+      return this.$store.state.chartOptions
+    },
+    labelDataset: function (): string {
+      return this.$store.state.labelDataset
+    },
+    activeDataset: function (): string {
+      return this.$store.state.activeDataset
+    },
+    activeDatasetOptions: function (): DatasetOption {
+      return this.$store.getters.activeDatasetOptions()
+    },
+    chartType: function (): ChartType {
+      return this.$store.state.chartType
     }
   },
   watch: {
-    dataset: function () {
-      this.sanitiseDatasetOptions()
-    }
   },
   mounted: function () {
-    this.sanitiseDatasetOptions()
   },
   methods: {
-    handleFileUpload: function (event) {
-      const file = event.target.files[0]
+    handleFileUpload: function (event: Event) {
+      if (!(event.target instanceof HTMLInputElement)) {
+        return
+      }
+      const fileList = event.target.files
 
-      if (!file) {
+      if (fileList === null) {
         return
       }
 
+      const file = fileList[0]
+
       const reader = new FileReader()
       reader.onload = (event) => {
-        const contents = event.target.result
+        const contents = reader.result // event.target.result
+        if (typeof contents !== 'string') {
+          console.error('Could not parse file: Content was not a string.')
+          return
+        }
+
         // Now we have the file and can process the results
         this.parseFile(contents, file.name) // Why pass the name? To guess the file type
       }
 
       reader.readAsText(file)
     },
-    sanitiseDatasetOptions: function () {
-      // Make sure to produce new option sets as applicable ...
-      for (const key in this.dataset) {
-        if (this.datasetOptions[key] === undefined) {
-          Vue.set(this.datasetOptions, key, this.initOptions())
-        }
-      }
-
-      // ... and remove non-existing
-      for (const key in this.datasetOptions) {
-        if (this.dataset[key] === undefined) {
-          Vue.delete(this.datasetOptions, key)
-        }
-      }
-
-      if (this.dataset[this.activeDataset] === undefined) {
-        // Make sure we always have a valid pointer to a correct dataset
-        this.activeDataset = Object.keys(this.dataset)[0]
-      }
-
-      // Afterwards, emit an event
-      this.$emit('datasetoptions', this.datasetOptions)
-    },
     setOptions: function () {
-      const newValue = Object.assign({}, this.value)
-      newValue.title.text = this.$refs['title-text'].value
-      newValue.title.position = this.$refs['title-position'].value
+      const newValue = Object.assign({}, this.chartOptions)
+      newValue.title.text = (this.$refs['title-text'] as any).value
+      newValue.title.position = (this.$refs['title-position'] as any).value
+      newValue.fontSize = (this.$refs['chart-font-size'] as any).value
 
-      newValue.drawChartBackground = this.$refs['draw-chart-background'].checked
-      newValue.chartBackgroundColor = this.$refs['chart-background-color'].value
+      newValue.drawChartBackground = (this.$refs['draw-chart-background'] as any).checked
+      newValue.chartBackgroundColor = (this.$refs['chart-background-color'] as any).value
 
       // We're merging two options into one here
-      if (this.$refs['legend-position'].value === 'none') {
+      if ((this.$refs['legend-position'] as any).value === 'none') {
         newValue.legend.display = false
         newValue.legend.position = 'top'
       } else {
         newValue.legend.display = true
-        newValue.legend.position = this.$refs['legend-position'].value
+        newValue.legend.position = (this.$refs['legend-position'] as any).value
       }
 
-      newValue.padding = parseInt(this.$refs['layout-padding'].value, 10)
+      newValue.padding = parseInt((this.$refs['layout-padding'] as any).value, 10)
 
-      newValue.resolution = parseInt(this.$refs['export-resolution'].value, 10)
+      newValue.resolution = parseInt((this.$refs['export-resolution'] as any).value, 10)
 
       // We need to make sure these elements are in fact rendered.
       if (this.chartType === 'bar') {
-        newValue.barChart.barPercentage = parseFloat(this.$refs['barchart-bar-percentage'].value)
-        newValue.barChart.categoryPercentage = parseFloat(this.$refs['barchart-cat-percentage'].value)
-        newValue.barChart.stacked = this.$refs['barchart-stacked'].checked
-        newValue.barChart.horizontal = this.$refs['barchart-horizontal'].checked
+        newValue.barChart.barPercentage = parseFloat((this.$refs['barchart-bar-percentage'] as any).value)
+        newValue.barChart.categoryPercentage = parseFloat((this.$refs['barchart-cat-percentage'] as any).value)
+        newValue.barChart.stacked = (this.$refs['barchart-stacked'] as any).checked
+        newValue.barChart.horizontal = (this.$refs['barchart-horizontal'] as any).checked
       } else if (this.chartType === 'pie') {
-        newValue.pieChart.cutoutPercentage = parseInt(this.$refs['piechart-cutout'].value, 10)
+        newValue.pieChart.cutoutPercentage = parseInt((this.$refs['piechart-cutout'] as any).value, 10)
       }
 
-      newValue.xAxis.grid.display = this.$refs['xaxisgrid-display'].checked
-      newValue.xAxis.grid.drawOnChartArea = this.$refs['xaxisgrid-drawonchartarea'].checked
-      newValue.xAxis.grid.drawTicks = this.$refs['xaxisgrid-drawticks'].checked
-      newValue.yAxis.grid.display = this.$refs['yaxisgrid-display'].checked
-      newValue.yAxis.grid.drawOnChartArea = this.$refs['yaxisgrid-drawonchartarea'].checked
-      newValue.yAxis.grid.drawTicks = this.$refs['yaxisgrid-drawticks'].checked
+      newValue.xAxis.grid.display = (this.$refs['xaxisgrid-display'] as any).checked
+      newValue.xAxis.grid.drawOnChartArea = (this.$refs['xaxisgrid-drawonchartarea'] as any).checked
+      newValue.xAxis.grid.drawTicks = (this.$refs['xaxisgrid-drawticks'] as any).checked
+      newValue.yAxis.grid.display = (this.$refs['yaxisgrid-display'] as any).checked
+      newValue.yAxis.grid.drawOnChartArea = (this.$refs['yaxisgrid-drawonchartarea'] as any).checked
+      newValue.yAxis.grid.drawTicks = (this.$refs['yaxisgrid-drawticks'] as any).checked
 
-      newValue.xAxis.label = this.$refs['xaxis-label'].value
-      newValue.yAxis.label = this.$refs['yaxis-label'].value
+      newValue.xAxis.label = (this.$refs['xaxis-label'] as any).value
+      newValue.yAxis.label = (this.$refs['yaxis-label'] as any).value
 
-      newValue.xAxis.ticks.display = this.$refs['xaxisgrid-ticklabels'].checked
-      newValue.yAxis.ticks.display = this.$refs['yaxisgrid-ticklabels'].checked
+      newValue.xAxis.ticks.display = (this.$refs['xaxisgrid-ticklabels'] as any).checked
+      newValue.yAxis.ticks.display = (this.$refs['yaxisgrid-ticklabels'] as any).checked
 
-      newValue.xAxis.ticks.beforeValue = this.$refs['xaxis-ticks-before'].value
-      newValue.xAxis.ticks.afterValue = this.$refs['xaxis-ticks-after'].value
-      newValue.yAxis.ticks.beforeValue = this.$refs['yaxis-ticks-before'].value
-      newValue.yAxis.ticks.afterValue = this.$refs['yaxis-ticks-after'].value
+      newValue.xAxis.ticks.beforeValue = (this.$refs['xaxis-ticks-before'] as any).value
+      newValue.xAxis.ticks.afterValue = (this.$refs['xaxis-ticks-after'] as any).value
+      newValue.yAxis.ticks.beforeValue = (this.$refs['yaxis-ticks-before'] as any).value
+      newValue.yAxis.ticks.afterValue = (this.$refs['yaxis-ticks-after'] as any).value
 
-      newValue.yAxis.beginAtZero = this.$refs['yaxis-beginatzero'].checked
+      newValue.yAxis.beginAtZero = (this.$refs['yaxis-beginatzero'] as any).checked
 
       // Finally emit an update
-      this.$emit('input', newValue)
+      this.$store.commit('chartOptions', newValue)
     },
-    parseFile: function (contents, fileName) {
+    parseFile: function (contents: string, fileName: string) {
       // Rudimentary TSV/CSV parsing. TOLD YOU IT'S JUST A SMALL TOOL! Don't
       // expect the data loader to fulfill wonders. HOWEVER it's still easier
       // to get a TSV file right than it is to force Excel to produce a simple
       // chart.
-      const ext = fileName.substr(fileName.lastIndexOf('.'))
+      const ext = fileName.substring(fileName.lastIndexOf('.'))
       if (![ '.tsv', '.csv' ].includes(ext)) {
         alert(`Unrecognised file extension: "${ext}".\n\nPlease select a ".csv" or ".tsv" file to load.`)
         return
       }
 
       const isTSV = ext.toLowerCase() === '.tsv'
-      // const isCSV = ext.toLowerCase() === '.csv'
 
       const lines = contents.trim().split('\n')
+      const parsedLines: string[][] = []
 
-      let separator = ','
+      const separator = (isTSV) ? '\t' : ','
 
-      if (isTSV) {
-        // We should split the data based on tabs
-        separator = '\t'
+      for (const line of lines) {
+        parsedLines.push(line.split(separator))
       }
 
-      for (let lineNo = 0; lineNo < lines.length; lineNo++) {
-        lines[lineNo] = lines[lineNo].split(separator)
+      const labels = parsedLines.shift()
+      if (labels === undefined) {
+        throw new Error(`Could not parse dataset: Did not contain any lines`)
       }
 
       // Now we should have a two-dimensional array in the form of row:col. We
       // now need to get that into our dataset format.
-      const datasets = {}
-      // First row = labels
-      for (const label of lines.shift()) {
+      const datasets: Dataset = {}
+      for (const label of labels) {
         datasets[label] = []
       }
 
-      // Here we again pivot the table to match chart.js's data structure.
-
-      const labelArray = Object.keys(datasets)
-
-      for (let row = 0; row < lines.length; row++) {
-        for (let col = 0; col < lines[row].length; col++) {
+      for (let row = 0; row < parsedLines.length; row++) {
+        for (let col = 0; col < parsedLines[row].length; col++) {
           // Retrieve the correct label
-          const label = labelArray[col]
-          datasets[label].push(lines[row][col])
+          datasets[labels[col]].push(parsedLines[row][col])
         }
       }
 
       // At this point we have the correct data size and can notify the app
-      this.$emit('dataset', datasets)
+      this.$store.commit('dataset', datasets)
+      // this.$emit('dataset', datasets)
 
       // Now that the app has the correct data, let's make sure our labels are
       // sane again
-      this.$emit('useaslabels', labelArray[0])
+      this.$emit('useaslabels', labels[0])
     },
-    initOptions: function () {
-      const options = {}
-
-      options.colour = {
-        r: Math.random() * 255,
-        g: Math.random() * 255,
-        b: Math.random() * 255,
-        a: 0.8,
-        // Enable easy stringification
-        toString: function (alpha) {
-          if (alpha === undefined) {
-            alpha = this.a
-          }
-          return `rgba(${this.r}, ${this.g}, ${this.b}, ${alpha})`
-        },
-        // Also to hex
-        toHex: function () { return rgbHex(this.r, this.g, this.b) },
-        // And also enable outputting the reverse colour
-        inverseString: function (alpha) {
-          if (alpha === undefined) {
-            alpha = this.a
-          }
-
-          return `rgba(${255 - this.r}, ${255 - this.g}, ${255 - this.b}, ${alpha})`
-        },
-        // And finally, we also want this color to be able to output us shades
-        shadeArray: function (numShades, alpha) {
-          if (alpha === undefined) {
-            alpha = this.a
-          }
-          // General: Shades work by multiplying the colour with 1/4, 1/2, etc.
-          // Tints work by multiplying the inverse with the same ratio.
-          // The smaller/greater the ratio, the darker/lighter the shade/tint.
-          // Thanks to https://stackoverflow.com/a/6615053 for the super-easy
-          // explanation.
-
-          // First, let's determine how many shades and how many tints we need.
-          // For that, we first compute how many theoretical values lie below
-          // and above our current colour value.
-          const valuesBelow = this.r + this.g + this.b - 3
-          const valuesAbove = 255 - this.r + 255 - this.g + 255 - this.b
-          // All three components add up to 765, so the sum is 762 (minus the
-          // three components from our actual colour).
-          // const sum = 762
-          // How many bins do we need? This determines the distance between colours.
-          const part = 762 / numShades
-          // Now we can see how often these parts fit into the two slices of the
-          // colour range and we know how many shades and how many tints we need.
-          const shades = Math.floor(valuesBelow / part)
-          const tints = Math.floor(valuesAbove / part)
-          // NOTE: We have to floor to make space for our one "normal" color that
-          // we want to stack in between its shades and tints.
-          
-          // Now build the array. We go from dark to light. Otherwise would also
-          // be possible.
-          const ret = []
-          for (let i = shades; i >= 0; i--) {
-            const r = this.r / (i + 1)
-            const g = this.g / (i + 1)
-            const b = this.b / (i + 1)
-            ret.push(`rgba(${r}, ${g}, ${b}, ${alpha})`)
-          }
-
-          // Add the actual colour in between
-          ret.push(this.toString(alpha))
-
-          // Third, add the tints.
-          for (let i = 1; i <= tints; i++) {
-            const r = this.r + (255 - this.r) / (tints - i + 1)
-            const g = this.g + (255 - this.g) / (tints - i + 1)
-            const b = this.b + (255 - this.b) / (tints - i + 1)
-            ret.push(`rgba(${r}, ${g}, ${b}, ${alpha})`)
-          }
-
-          return ret // Et voilà!
-        }
+    updateColour: function (color: Color, hexVal: string) {
+      const cols = hexRgb(hexVal)
+      color.red = cols.red
+      color.green = cols.green
+      color.blue = cols.blue
+    },
+    setChartType: function (newType: string) {
+      this.$store.commit('chartType', newType)
+    },
+    startFileupload: function () {
+      (this.$refs['file-input'] as HTMLInputElement).click()
+    },
+    setActiveDataset: function (newDataset: string) {
+      this.$store.commit('activeDataset', newDataset)
+    },
+    setLabelDataset: function (newDataset: string|undefined) {
+      if (newDataset === '') {
+        newDataset = undefined
       }
 
-      options.pointStyle = 'circle'
-
-      options.tension = 0 // Determines the amount of curviness
-      options.pointRadius = 0 // 0 = disable
-      options.fill = false // Whether or not the AUC should be filled
-      options.borderWidth = 2
-
-      return options
-    },
-    updateColour: function (color, hexVal) {
-      const cols = hexRgb(hexVal)
-      color.r = cols.red
-      color.g = cols.green
-      color.b = cols.blue
-
-      // Afterwards, emit an event
-      this.$emit('datasetoptions', this.datasetOptions)
+      this.$store.commit('labelDataset', newDataset)
     }
   }
-}
+})
 </script>
 
 <style>

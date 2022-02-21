@@ -5,6 +5,7 @@
       "module": "commonjs",
       "skipLibCheck": true,
       "esModuleInterop": true,
+      "strict": true,
       "noImplicitAny": true,
       "sourceMap": true,
       "baseUrl": ".",
@@ -13,7 +14,7 @@
       "resolveJsonModule": true,
       "downlevelIteration": true,
       "paths": {
-        "*": ["node_modules/*"]
+        // "*": ["node_modules/*"]
       }
     },
     "include": [

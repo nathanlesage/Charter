@@ -1,15 +1,19 @@
 import { VueLoaderPlugin } from 'vue-loader'
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin'
 import HTMLWebpackPlugin from 'html-webpack-plugin'
+import webpack from 'webpack'
+const { DefinePlugin } = webpack
+// import { DefinePlugin } from 'webpack'
 
 export default {
   entry: {
     app: './src/main.ts'
   },
+  mode: (process.env.NODE_ENV === 'production') ? 'production' : 'development',
+  devtool: (process.env.NODE_ENV === 'production') ? false : 'source-map',
   devServer: {
-    contentBase: './dist',
-    port: 8080,
-    publicPath: "/"
+    hot: true,
+    port: 8080
   },
   module: {
     rules: [
@@ -19,7 +23,8 @@ export default {
         use: {
           loader: 'ts-loader',
           options: {
-            transpileOnly: true
+            transpileOnly: true,
+            appendTsSuffixTo: [/\.vue$/] // Enable ts support in Vue SFCs
           }
         }
       },
@@ -54,6 +59,12 @@ export default {
 
     // Apply webpack rules to the corresponding language blocks in .vue files
     new VueLoaderPlugin(),
+
+    // Set a few Vue 3 options; see: http://link.vuejs.org/feature-flags
+    new DefinePlugin({
+      __VUE_OPTIONS_API__: true,
+      __VUE_PROD_DEVTOOLS__: false
+    }),
 
     new HTMLWebpackPlugin({
       template: './src/index.htm',

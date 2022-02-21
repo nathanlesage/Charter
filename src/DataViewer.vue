@@ -14,8 +14,8 @@
           <input
             type="text"
             v-bind:value="item"
-            v-on:input="renameDataset(labelIndex, $event.target.value)"
-            v-on:focus="$event.target.select()"
+            v-on:input="renameDataset(labelIndex, $event)"
+            v-on:focus="($event.target as any).select()"
           >
           <!-- Enable removal of single datasets -->
           <span
@@ -41,8 +41,8 @@
           v-if="colIndex > 0"
           type="text"
           v-bind:value="column"
-          v-on:input="handleInput(rowIndex, colIndex, $event.target.value)"
-          v-on:focus="$event.target.select()"
+          v-on:input="handleInput(rowIndex, colIndex, $event)"
+          v-on:focus="($event.target as any).select()"
         >
         <span
           v-else
@@ -55,35 +55,28 @@
   </table>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from 'vue'
+
+export default defineComponent({
   name: 'DataViewer',
-  props: {
-    // This will be the modeled dataset; we have to emit changes.
-    value: {
-      type: Object,
-      default: function () { return {} }
-    }
-  },
   data: function () {
     return {
       selectedRow: -1
     }
   },
-  watch: {
-    selectedRow: function () {
-      this.$emit('rowselection', this.selectedRow)
-    }
-  },
   computed: {
-    labels: function () {
-      return [''].concat(Object.keys(this.value))
+    dataset: function (): { [key: string]: string[] } {
+      return this.$store.state.dataset
     },
-    dataRows: function () {
+    labels: function (): string[] {
+      return [''].concat(Object.keys(this.dataset))
+    },
+    dataRows: function (): string[][] {
       // Because we have a different format in our data than the required HTML
       // for a table, we need to reshape the dataset here.
-      const columns = Object.values(this.value)
-      const rows = []
+      const columns = Object.values(this.dataset)
+      const rows: string[][] = []
       // Now we have a two-dimensional array which we basically have to pivot,
       // that is: every i-th element of every column goes into every i-th row.
       for (const column of columns) {
@@ -106,83 +99,99 @@ export default {
       for (let i = 0; i < rows.length; i++) {
         while (rows[i].length < max) {
           // We pad with zeros
-          rows[i].push(0) // TODO: Maybe also empty strings? We need a concept of "NaN"
+          rows[i].push('0') // TODO: Maybe also empty strings? We need a concept of "NaN"
         }
 
         // In the end, no matter what we have, prepend a row number
-        rows[i].unshift(i + 1)
+        rows[i].unshift(`${i + 1}`)
       }
 
       return rows
     }
   },
   methods: {
-    handleInput: function (row, col, value) {
+    handleInput: function (row: number, col: number, event: Event) {
+      if (event.target === null) {
+        return
+      }
+
+      if (!(event.target instanceof HTMLInputElement)) {
+        return
+      }
+
       // A data cell has been changed. Here we need to take the passed value,
       // modify the correct object, and emit an input event to the root.
       // NOTE that row indicates the index within a dataset, and col indicates
       // the dataset itself!
-      const newValue = {}
+      const newDataset: any = {}
 
       // Deep clone our data
-      for (const dataset in this.value) {
-        newValue[dataset] = this.value[dataset].map(elem => elem)
+      for (const dataset in this.dataset) {
+        newDataset[dataset] = this.dataset[dataset].map(elem => elem)
       }
 
       // Now we just need to find the correct dataset. Charter supports two basic
       // types of input: Strings and numbers.
-      const dataset = this.labels[col]
-      newValue[dataset][row] = value
+      const datasetName = this.labels[col]
+      newDataset[datasetName][row] = event.target.value
 
-      this.$emit('input', newValue)
+      this.$store.commit('dataset', newDataset)
     },
-    renameDataset: function (labelID, newName) {
+    renameDataset: function (labelID: number, event: Event) {
+      if (event.target === null) {
+        return
+      }
+
+      if (!(event.target instanceof HTMLInputElement)) {
+        return
+      }
+
       const oldName = this.labels[labelID]
-      const newValue = {}
-      if (Object.keys(this.value).includes(newName)) {
-        console.warn(`The new dataset name for ${oldName}, ${newName} is already taken. Modifying ...`)
+      let newName = event.target.value
+      const newDataset: any = {}
+
+      if (this.labels.includes(newName)) {
+        console.warn(`The new dataset name for ${oldName}, ${newName} is already taken.`)
         newName += ' (1)' // Four characters to remove for the user, I think that's okay.
       }
 
-      for (const dataset in this.value) {
+      for (const dataset in this.dataset) {
         if (dataset === oldName) {
-          newValue[newName] = this.value[oldName].map(elem => elem)
+          newDataset[newName] = this.dataset[oldName].map(elem => elem)
         } else {
-          newValue[dataset] = this.value[dataset].map(elem => elem)
+          newDataset[dataset] = this.dataset[dataset].map(elem => elem)
         }
       }
 
-      this.$emit('input', newValue)
+      this.$store.commit('dataset', newDataset)
     },
-    removeDataset: function (labelID) {
+    removeDataset: function (labelID: number) {
       // NOTE: labelID is offset by one due to the row numbers, but this.label
       // also includes the padding.
-      const dataToRemove = this.labels[labelID]
-      const newValue = {}
-      for (const dataset in this.value) {
-        // Deep clone the data but skip the dataset to remove
-        if (dataset !== dataToRemove) {
-          newValue[dataset] = this.value[dataset].map(elem => elem)
+      const newDataset: any = {}
+      const dataset = this.dataset
+      const labels = Object.keys(this.$store.state.dataset)
+
+      for (let i = 1; i < this.labels.length; i++) {
+        if (i !== labelID) {
+          newDataset[this.labels[i]] = dataset[this.labels[i]].map(elem => elem)
         }
       }
-
-      this.$emit('input', newValue)
+      this.$store.commit('dataset', newDataset)
     },
-    removeRow: function (event) {
-      const newValue = {}
-
-      for (const dataset in this.value) {
-        newValue[dataset] = this.value[dataset]
+    removeRow: function (event: MouseEvent|KeyboardEvent) {
+      const newDataset: any = {}
+      for (const label in this.dataset) {
+        newDataset[label] = this.dataset[label]
           .filter((elem, idx) => idx !== this.selectedRow)
           .map(elem => elem)
       }
 
       this.selectedRow = -1
-
-      this.$emit('input', newValue)
+      this.$store.commit('dataset', newDataset)
     }
   }
-}
+})
 </script>
 
 <style>

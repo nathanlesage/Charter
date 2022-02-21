@@ -12,57 +12,50 @@
   </div>
 </template>
 
-<script>
-import Chart from 'chart.js/auto'
+<script lang="ts">
+import { defineComponent } from 'vue'
+import Chart, { ChartType, ChartDataset } from 'chart.js/auto'
+import { Dataset, ChartOptions, DatasetOptions } from './store'
 
-export default {
+let chart: Chart|null = null
+
+export default defineComponent({
   name: 'ChartViewer',
-  props: {
-    // The overall chart type
-    chartType: {
-      type: String,
-      default: 'line'
-    },
-    // The data
-    dataset: {
-      type: Object,
-      default: function () { return {} }
-    },
-    // Chart options
-    options: {
-      type: Object,
-      default: function () { return {} }
-    },
-    // Which dataset to use as labels?
-    useAsLabels: {
-      type: String,
-      default: ''
-    },
-    // Custom settings for each dataset
-    datasetOptions: {
-      type: Object,
-      default: function () { return {} }
-    }
-  },
   data: function () {
-    return {
-      chart: null
-    }
+    return {}
   },
   computed: {
+    dataset: function (): Dataset {
+      return this.$store.state.dataset
+    },
+    chartType: function (): ChartType {
+      return this.$store.state.chartType
+    },
+    labelDataset: function (): string|undefined {
+      return this.$store.state.labelDataset
+    },
+    datasetOptions: function (): DatasetOptions {
+      return this.$store.state.datasetOptions
+    },
+    options: function (): ChartOptions {
+      return this.$store.state.chartOptions
+    },
+    chartCanvas: function (): HTMLCanvasElement {
+      return this.$refs.chart as HTMLCanvasElement
+    },
     /**
      * Returns the dataset in a form that Chart.js can consume
      *
      * @return  {Array}  An array with all datasets
      */
-    chartData: function () {
+    chartData: function (): ChartDataset[] {
       const labels = Object.keys(this.dataset)
       const data = Object.values(this.dataset)
 
-      const chartDatasets = []
+      const chartDatasets: ChartDataset[] = []
 
       for (let i = 0; i < labels.length; i++) {
-        if (labels[i] === this.useAsLabels) {
+        if (labels[i] === this.labelDataset) {
           continue // Obviously don't use *THAT* column
         }
 
@@ -77,9 +70,9 @@ export default {
         const inverseAlphaColor = (options.colour !== undefined) ? options.colour.inverseString(): ''
 
         // Apply these colors first.
-        let bColor = defaultSolidColor
-        let pBgColor = defaultSolidColor
-        let bgColor = defaultAlphaColor
+        let bColor: string|string[] = defaultSolidColor
+        let pBgColor: string|string[] = defaultSolidColor
+        let bgColor: string|string[] = defaultAlphaColor
         let hBgColor = inverseAlphaColor
         let hBColor = inverseSolidColor
 
@@ -87,7 +80,7 @@ export default {
         // we must instead apply an array of colours. For simplicity's sake, we
         // will simply use an array of shades computed from the actual bar
         // bar colour.
-        const shadesNeeded = (this.chartType === 'pie' || this.chartType === 'bar') && data.length === 2
+        const shadesNeeded = ([ 'pie', 'bar' ].includes(this.chartType)) && data.length === 2
         if (shadesNeeded && options.colour !== undefined) {
           const solidArray = options.colour.shadeArray(data[i].length, 1)
           const alphaArray = options.colour.shadeArray(data[i].length)
@@ -100,21 +93,21 @@ export default {
         // Last but not least, we need to re-form the data if the user wants
         // to create a scatter plot. In that case, the label dataset will also
         // provide the x-axis values, not just the labels.
-        let datasetData = data[i]
-        if (this.chartType === 'scatter' && labels.includes(this.useAsLabels)) {
-          const xValues = data[labels.indexOf(this.useAsLabels)]
+        let datasetData: number[]|{ x: number, y: number }[] = data[i].map(elem => parseFloat(elem))
+        if (this.chartType === 'scatter' && labels.includes(this.labelDataset as string)) {
+          const xValues = data[labels.indexOf(this.labelDataset as string)]
 
           datasetData = data[i].map((elem, index) => {
             return {
-              x: xValues[index],
-              y: elem
+              x: parseFloat(xValues[index]),
+              y: parseFloat(elem)
             }
           })
         }
 
         chartDatasets.push({
           label: labels[i],
-          data: datasetData,
+          data: datasetData as any,
           // Border colour and point background are both always opacity 1,
           // but the background colour can differ, which is why we take the
           // alpha saved within the colour.
@@ -122,7 +115,7 @@ export default {
           pointBackgroundColor: pBgColor,
           backgroundColor: bgColor,
           hoverBackgroundColor: hBgColor,
-          hoverBoderColor: hBColor,
+          hoverBorderColor: hBColor,
           pointStyle: options.pointStyle,
           pointRadius: options.pointRadius,
           tension: options.tension,
@@ -134,12 +127,14 @@ export default {
         })
       }
 
+      console.log(chartDatasets)
+
       return chartDatasets
     }
   },
   watch: {
     chartType: function () {
-      if (this.chart === null) {
+      if (chart === null) {
         return
       }
 
@@ -147,28 +142,28 @@ export default {
     },
     chartData: function () {
       // The chart data has changed so we need to update
-      if (this.chart === null) {
+      if (chart === null) {
         return
       }
 
-      this.chart.data.datasets = this.chartData
-      this.chart.update()
+      chart.data.datasets = this.chartData
+      chart.update()
     },
     options: function (newOptions, oldOptions) {
-      if (this.chart === null) {
+      if (chart === null) {
         return
       }
 
-      const resChanged = this.chart.options.devicePixelRatio !== this.options.resolution
+      const resChanged = chart.options.devicePixelRatio !== this.options.resolution
 
       if (resChanged) {
         // We need to re-create the whole thing
         this.createChart()
       } else {
         // Updating suffices
-        this.chart.options = this.getChartOptions()
+        chart.options = this.getChartOptions()
         // Finally, update the chart
-        this.chart.update()
+        chart.update()
       }
     }
   },
@@ -177,14 +172,15 @@ export default {
   },
   methods: {
     createChart: function () {
-      if (this.chart !== null) {
-        this.chart.destroy()
+      if (chart !== null) {
+        chart.destroy()
       }
 
-      this.chart = new Chart(this.$refs.chart, {
+      // @ts-ignore The ChartJS types are too complex for dynamic instantiation
+      chart = new Chart(this.chartCanvas, {
         type: this.chartType,
         data: {
-          labels: this.dataset[this.useAsLabels], // Might be undefined, but doesn't throw
+          labels: this.dataset[this.labelDataset ?? ''],
           datasets: this.chartData
         },
         options: this.getChartOptions(),
@@ -194,13 +190,17 @@ export default {
             // background of the chart with a single colour.
             // After 3.x migration adapted from https://www.chartjs.org/docs/master/configuration/canvas-background.html
             id: 'background',
-            beforeDraw: function (chart, mysteryOption, pluginOptions) {
-              const { draw, color } = pluginOptions
+            beforeDraw: function (chart: Chart, args: { cancelable: true }, options: any) {
+              const { draw, color } = options
               if (!draw) {
                 return // Leave the transparent background
               }
 
               const ctx = chart.canvas.getContext('2d')
+              if (ctx === null) {
+                return
+              }
+
               ctx.save() // Save context settings, e.g. the fillStyle
               // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/globalCompositeOperation
               ctx.globalCompositeOperation = 'destination-over'
@@ -210,14 +210,33 @@ export default {
             }
           }
         ]
-      }) // END chart instantiation
+      } as any) // END chart instantiation
     },
-    getChartOptions: function () {
+    getChartOptions: function (): any {
       // Two variables we need for horizontal bar charts
       const isBar = this.chartType === 'bar'
       const isHorizontal = this.options.barChart.horizontal
 
-      // First all options that we can define inline
+      // Should we customise the tick labels?
+      const beforeXValue = this.options.xAxis.ticks.beforeValue
+      const afterXValue = this.options.xAxis.ticks.afterValue
+      const beforeYValue = this.options.yAxis.ticks.beforeValue
+      const afterYValue = this.options.yAxis.ticks.afterValue
+
+      let xCallback = undefined
+      if (beforeXValue.trim() !== '' || afterXValue.trim() !== '') {
+        xCallback = function (value: any, index: number, allValues: any[]) {
+          return `${beforeXValue}${value}${afterXValue}`
+        }
+      }
+
+      let yCallback = undefined
+      if (beforeYValue.trim() !== '' || afterYValue.trim() !== '') {
+        xCallback = function (value: any, index: number, allValues: any[]) {
+          return `${beforeYValue}${value}${afterYValue}`
+        }
+      }
+
       const options = {
         // Horizontal bar charts have y as the index axis
         indexAxis: (isBar && isHorizontal) ? 'y' : 'x',
@@ -236,22 +255,28 @@ export default {
           y: {
             title: {
               display: this.options.yAxis.label.trim() !== '',
-              text: this.options.yAxis.label
+              text: this.options.yAxis.label,
+              font: { size: this.options.fontSize }
             },
             grid: this.options.yAxis.grid,
             beginAtZero: this.options.yAxis.beginAtZero,
             ticks: {
               display: this.options.yAxis.ticks.display,
+              callback: yCallback,
+              font: { size: this.options.fontSize }
             }
           },
           x: {
             title: {
               display: this.options.xAxis.label.trim() !== '',
-              text: this.options.xAxis.label
+              text: this.options.xAxis.label,
+              font: { size: this.options.fontSize }
             },
             grid: this.options.xAxis.grid,
             ticks: {
-              display: this.options.xAxis.ticks.display
+              display: this.options.xAxis.ticks.display,
+              callback: xCallback,
+              font: { size: this.options.fontSize }
             },
             // Will be respected if this is a bar chart
             stacked: this.options.barChart.stacked
@@ -280,42 +305,23 @@ export default {
             // Only display title if set
             display: this.options.title.text.trim() !== '',
             text: this.options.title.text.split('<lf>'), // Enable multi-line with "<lf>"
-            position: this.options.title.position
+            position: this.options.title.position,
+            font: { size: this.options.fontSize }
           }
-        }
-      }
-
-      // Now, tend to options we need to customise
-
-      // Should we customise the tick labels?
-      const beforeXValue = this.options.xAxis.ticks.beforeValue
-      const afterXValue = this.options.xAxis.ticks.afterValue
-      const beforeYValue = this.options.yAxis.ticks.beforeValue
-      const afterYValue = this.options.yAxis.ticks.afterValue
-
-      if (beforeXValue.trim() !== '' || afterXValue.trim() !== '') {
-        options.scales.x.ticks.callback = function (value, index, allValues) {
-          return `${beforeXValue}${value}${afterXValue}`
-        }
-      }
-
-      if (beforeYValue.trim() !== '' || afterYValue.trim() !== '') {
-        options.scales.y.ticks.callback = function (value, index, allValues) {
-          return `${beforeYValue}${value}${afterYValue}`
         }
       }
 
       return options
     },
     getBase64: function () {
-      if (this.chart === null) {
+      if (chart === null) {
         return undefined
       }
 
-      return this.chart.toBase64Image()
+      return chart.toBase64Image()
     }
   }
-}
+})
 </script>
 
 <style>
