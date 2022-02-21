@@ -5,7 +5,7 @@ const HTMLWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
   entry: {
-    app: path.resolve(__dirname, './src/renderer.ts')
+    app: path.resolve(__dirname, './src/main.ts')
   },
   devServer: {
     contentBase: path.join(__dirname, 'dist'),

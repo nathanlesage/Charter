@@ -8,9 +8,9 @@
   "license": "GPL-3.0-only",
   "private": false,
   "scripts": {
-    "start": "webpack serve --config ./webpack.renderer.config.js",
+    "start": "webpack serve",
     "lint": "eslint --ext js,ts,vue src",
-    "build:web": "NODE_ENV=production webpack --config ./webpack.renderer.config.js"
+    "build:web": "NODE_ENV=production webpack"
   },
   "dependencies": {
     "b64-to-blob": "^1.2.19",
