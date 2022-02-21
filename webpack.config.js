@@ -1,14 +1,13 @@
-const path = require('path')
-const VueLoaderPlugin = require('vue-loader/lib/plugin')
-const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
-const HTMLWebpackPlugin = require('html-webpack-plugin')
+import { VueLoaderPlugin } from 'vue-loader'
+import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin'
+import HTMLWebpackPlugin from 'html-webpack-plugin'
 
-module.exports = {
+export default {
   entry: {
-    app: path.resolve(__dirname, './src/main.ts')
+    app: './src/main.ts'
   },
   devServer: {
-    contentBase: path.join(__dirname, 'dist'),
+    contentBase: './dist',
     port: 8080,
     publicPath: "/"
   },

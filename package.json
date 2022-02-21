@@ -12,6 +12,7 @@
     "lint": "eslint --ext js,ts,vue src",
     "build:web": "NODE_ENV=production webpack"
   },
+  "type": "module",
   "dependencies": {
     "b64-to-blob": "^1.2.19",
     "chart.js": "^3.2.1",
