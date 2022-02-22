@@ -201,9 +201,13 @@
       ></Dropdown>
 
       <label><strong>Chart legend and position</strong></label>
-      <!-- TODO: Display legend true/false -->
+      <Checkbox
+        v-model="localOptions.legend.display"
+        v-bind:label="'Display legend'"
+      ></Checkbox>
       <Dropdown
         v-model="localOptions.legend.position"
+        v-bind:disabled="!localOptions.legend.display"
         v-bind:options="{
           'Top': 'top',
           'Left': 'left',

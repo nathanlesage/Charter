@@ -5,6 +5,7 @@
       ref="input"
       class="form-control"
       v-bind:value="modelValue"
+      v-bind:disabled="disabled"
       v-on:input="$emit('update:modelValue', input.value)"
     >
       <option
@@ -34,6 +35,10 @@ export default defineComponent({
     options: {
       type: Object,
       required: true
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   emits: ['update:modelValue'],

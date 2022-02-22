@@ -6,7 +6,7 @@
       type="text"
       class="form-control"
       v-bind:placeholder="placeholder"
-      v-bind:input="modelValue"
+      v-bind:value="modelValue"
       v-on:input="$emit('update:modelValue', input.value)"
     >
   </div>
