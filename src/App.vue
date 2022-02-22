@@ -14,9 +14,9 @@
                 'active': currentView === 'data'
               }"
               v-on:click="currentView = 'data'"
+              title="Data viewer"
             >
               <span class="icon icon-database"></span>
-              Data
             </button>
             <button
               v-if="hasData"
@@ -27,9 +27,9 @@
                 'active': currentView === 'chart'
               }"
               v-on:click="currentView = 'chart'"
+              title="Chart viewer"
             >
               <span class="icon icon-chart-bar"></span>
-              Chart
             </button>
             <!-- Info pane -->
             <button
@@ -40,6 +40,7 @@
                 'active': currentView === 'info'
               }"
               v-on:click="currentView = 'info'"
+              title="Info and help"
             >
               <span class="icon icon-info"></span>
             </button>
