@@ -94,17 +94,13 @@
         </button>
       </div>
 
-      <label for="export-resolution"><strong>Export resolution</strong></label>
-      <input
-        ref="export-resolution"
-        id="export-resolution"
-        class="form-control"
-        type="range"
-        min="1"
-        max="10"
-        v-bind:value="chartOptions.resolution"
-        v-on:input="setOptions()"
-      >
+      <Slider
+        v-model="localOptions.resolution"
+        v-bind:label="'Export resolution'"
+        v-bind:min="1"
+        v-bind:max="10"
+      ></Slider>
+
       <hr>
 
       <!-- CHART TYPE -->
@@ -189,44 +185,32 @@
       <hr>
 
       <!-- GENERIC SETTINGS APPLICABLE TO ALL CHART TYPES -->
-      <div class="form-group">
-        <label><strong>Chart Title and Position</strong></label>
-        <input
-          ref="title-text"
-          type="text"
-          class="form-control"
-          placeholder="Chart title"
-          v-bind:value="chartOptions.title.text"
-          v-on:input="setOptions()"
-        >
-      </div>
-      <div class="form-group">
-        <select
-          ref="title-position"
-          class="form-control"
-          v-bind:value="chartOptions.title.position"
-          v-on:input="setOptions()"
-        >
-          <option value="top">Top</option>
-          <option value="left">Left</option>
-          <option value="right">Right</option>
-          <option value="bottom">Bottom</option>
-        </select>
-      </div>
+      <Text
+        v-model="localOptions.title.text"
+        v-bind:label="'Chart Title and Position'"
+        v-bind:placeholder="'Chart title'"
+      ></Text>
+      <Dropdown
+        v-model="localOptions.title.position"
+        v-bind:options="{
+          'Top': 'top',
+          'Left': 'left',
+          'Right': 'right',
+          'Bottom': 'bottom'
+        }"
+      ></Dropdown>
 
       <label><strong>Chart legend and position</strong></label>
-      <select
-        ref="legend-position"
-        class="form-control"
-        v-bind:value="legendValuePosition"
-        v-on:input="setOptions()"
-      >
-        <option value="none">Hide legend</option>
-        <option value="top">Top</option>
-        <option value="left">Left</option>
-        <option value="right">Right</option>
-        <option value="bottom">Bottom</option>
-      </select>
+      <!-- TODO: Display legend true/false -->
+      <Dropdown
+        v-model="localOptions.legend.position"
+        v-bind:options="{
+          'Top': 'top',
+          'Left': 'left',
+          'Right': 'right',
+          'Bottom': 'bottom'
+        }"
+      ></Dropdown>
 
       <label for="barchart-bar-percentage"><strong>Font size</strong></label>
       <input
@@ -237,106 +221,66 @@
         min="2"
         max="200"
         step="1"
-        v-bind:value="chartOptions.fontSize"
-        v-on:input="setOptions()"
+        v-model="localOptions.fontSize"
       >
 
-      <label for="layout-padding"><strong>Chart spacing</strong> ({{ chartOptions.padding }}px)</label>
-      <input
-        ref="layout-padding"
-        id="layout-padding"
-        class="form-control"
-        type="range"
-        min="0"
-        max="200"
-        v-bind:value="chartOptions.padding"
-        v-on:input="setOptions()"
-      >
+      <Slider
+        v-model="localOptions.padding"
+        v-bind:label="`Chart spacing (${localOptions.padding}px)`"
+        v-bind:min="0"
+        v-bind:max="200"
+      ></Slider>
 
-      <div class="checkbox">
-        <label>
-          <input
-            ref="draw-chart-background"
-            type="checkbox"
-            v-bind:checked="chartOptions.drawChartBackground"
-            v-on:input="setOptions()"
-          > Chart background color
-        </label>
-      </div>
+      <Checkbox
+        v-model="localOptions.drawChartBackground"
+        v-bind:label="'Chart background color'"
+      ></Checkbox>
 
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <label>Chart background color:</label>
         <input
           ref="chart-background-color"
           type="color"
-          v-bind:value="chartOptions.chartBackgroundColor"
-          v-bind:disabled="!chartOptions.drawChartBackground"
-          v-on:input="setOptions()"
+          v-model="localOptions.chartBackgroundColor"
+          v-bind:disabled="!localOptions.drawChartBackground"
         >
       </div>
 
       <!-- Now settings for specific chart types -->
       <template v-if="chartType === 'bar'">
-        <!-- TODO: Enable barPercentage and categoryPercentage (0-1) -->
-        <label for="barchart-bar-percentage"><strong>Bar width</strong></label>
-        <input
-          ref="barchart-bar-percentage"
-          id="barchart-bar-percentage"
-          class="form-control"
-          type="range"
-          min="0"
-          max="1"
-          step="0.1"
-          v-bind:value="chartOptions.barChart.barPercentage"
-          v-on:input="setOptions()"
-        >
-        <label for="barchart-cat-percentage"><strong>Category width</strong></label>
-        <input
-          ref="barchart-cat-percentage"
-          id="barchart-cat-percentage"
-          class="form-control"
-          type="range"
-          min="0"
-          max="1"
-          step="0.1"
-          v-bind:value="chartOptions.barChart.categoryPercentage"
-          v-on:input="setOptions()"
-        >
+         <Slider
+          v-model="localOptions.barChart.barPercentage"
+          v-bind:label="'Bar width'"
+          v-bind:min="0"
+          v-bind:max="1"
+          v-bind:step="0.1"
+        ></Slider>
 
-        <div class="checkbox">
-          <label>
-            <input
-              ref="barchart-stacked"
-              type="checkbox"
-              v-bind:checked="chartOptions.barChart.stacked"
-              v-on:input="setOptions()"
-            > Stacked bar chart
-          </label>
-        </div>
-        <div class="checkbox">
-          <label>
-            <input
-              ref="barchart-horizontal"
-              type="checkbox"
-              v-bind:checked="chartOptions.barChart.horizontal"
-              v-on:input="setOptions()"
-            > Horizontal bar chart
-          </label>
-        </div>
+        <Slider
+          v-model="localOptions.barChart.categoryPercentage"
+          v-bind:label="'Category width'"
+          v-bind:min="0"
+          v-bind:max="1"
+          v-bind:step="0.1"
+        ></Slider>
+
+        <Checkbox
+          v-model="localOptions.barChart.stacked"
+          v-bind:label="'Stacked bar chart'"
+        ></Checkbox>
+
+        <Checkbox
+          v-model="localOptions.barChart.horizontal"
+          v-bind:label="'Horizontal bar chart'"
+        ></Checkbox>
       </template>
       <template v-else-if="chartType === 'pie'">
-        <!-- TODO: Enable cutoutPercentage (0 for pie, 50 for donut) -->
-        <label for="piechart-cutout"><strong>Pie Chart Cutout</strong></label>
-        <input
-          ref="piechart-cutout"
-          id="piechart-cutout"
-          class="form-control"
-          type="range"
-          min="0"
-          max="100"
-          v-bind:value="chartOptions.pieChart.cutoutPercentage"
-          v-on:input="setOptions()"
-        >
+        <Slider
+          v-model="localOptions.pieChart.cutoutPercentage"
+          v-bind:label="'Pie Chart Cutout'"
+          v-bind:min="0"
+          v-bind:max="100"
+        ></Slider>
       </template>
 
       <hr>
@@ -443,166 +387,88 @@
       <!-- GRID LINE CONFIGURATION -->
       <label><strong>x-Axis</strong></label>
 
-      <input
-        ref="xaxis-label"
-        type="text"
-        placeholder="Enter your x-axis label here"
-        class="form-control"
-        v-on:input="setOptions()"
-      >
+      <Text
+        v-model="localOptions.xAxis.label"
+        v-bind:placeholder="'Enter your x-axis label here'"
+      ></Text>
 
-      <label class="padded-top">Customise ticks: {{ chartOptions.xAxis.ticks.beforeValue}}1.23{{ chartOptions.xAxis.ticks.afterValue }}</label>
+      <label class="padded-top">Customise ticks: {{ localOptions.xAxis.ticks.beforeValue }}1.23{{ localOptions.xAxis.ticks.afterValue }}</label>
 
-      <input
-        ref="xaxis-ticks-before"
-        type="text"
-        placeholder="Before tick labels, e.g. $"
-        v-bind:value="chartOptions.xAxis.ticks.beforeValue"
-        class="form-control"
-        v-on:input="setOptions()"
-      >
+      <Text
+        v-model="localOptions.xAxis.ticks.beforeValue"
+        v-bind:placeholder="'Before tick labels, e.g. $'"
+      ></Text>
+      <Text
+        v-model="localOptions.xAxis.ticks.afterValue"
+        v-bind:placeholder="'After tick labels, e.g. $'"
+      ></Text>
 
-      <input
-        ref="xaxis-ticks-after"
-        type="text"
-        placeholder="After tick labels, e.g. %"
-        v-bind:value="chartOptions.xAxis.ticks.afterValue"
-        class="form-control"
-        v-on:input="setOptions()"
-      >
+      <Checkbox
+        v-model="localOptions.xAxis.grid.display"
+        v-bind:label="'Display the x-axis grid'"
+      ></Checkbox>
 
-      <div class="checkbox">
-        <label>
-          <input
-            ref="xaxisgrid-display"
-            type="checkbox"
-            v-bind:checked="chartOptions.xAxis.grid.display"
-            v-on:input="setOptions()"
-          > Display the x-axis grid
-        </label>
-      </div>
+      <Checkbox
+        v-model="localOptions.xAxis.grid.drawOnChartArea"
+        v-bind:label="'Gridlines'"
+        v-bind:disabled="!localOptions.xAxis.grid.display"
+      ></Checkbox>
 
-      <div class="checkbox">
-        <label>
-          <input
-            ref="xaxisgrid-drawonchartarea"
-            type="checkbox"
-            v-bind:checked="chartOptions.xAxis.grid.drawOnChartArea"
-            v-bind:disabled="!chartOptions.xAxis.grid.display"
-            v-on:input="setOptions()"
-          > Gridlines
-        </label>
-      </div>
+      <Checkbox
+        v-model="localOptions.xAxis.grid.drawTicks"
+        v-bind:label="'Tick lines'"
+        v-bind:disabled="!localOptions.xAxis.grid.display"
+      ></Checkbox>
 
-      <div class="checkbox">
-        <label>
-          <input
-            ref="xaxisgrid-drawticks"
-            type="checkbox"
-            v-bind:checked="chartOptions.xAxis.grid.drawTicks"
-            v-bind:disabled="!chartOptions.xAxis.grid.display"
-            v-on:input="setOptions()"
-          > Tick lines
-        </label>
-      </div>
-
-      <div class="checkbox">
-        <label>
-          <input
-            ref="xaxisgrid-ticklabels"
-            type="checkbox"
-            v-bind:checked="chartOptions.xAxis.ticks.display"
-            v-on:input="setOptions()"
-          > Tick labels
-        </label>
-      </div>
+      <Checkbox
+        v-model="localOptions.xAxis.ticks.display"
+        v-bind:label="'Tick labels'"
+      ></Checkbox>
 
       <label><strong>y-Axis</strong></label>
 
-      <input
-        ref="yaxis-label"
-        type="text"
-        placeholder="Enter your y-axis label here"
-        class="form-control"
-        v-on:input="setOptions()"
-      >
+      <Text
+        v-model="localOptions.yAxis.label"
+        v-bind:placeholder="'Enter your y-axis label here'"
+      ></Text>
 
-      <label class="padded-top">Customise ticks: {{ chartOptions.yAxis.ticks.beforeValue}}1.23{{ chartOptions.yAxis.ticks.afterValue }}</label>
+      <label class="padded-top">Customise ticks: {{ localOptions.yAxis.ticks.beforeValue}}1.23{{ localOptions.yAxis.ticks.afterValue }}</label>
 
-      <input
-        ref="yaxis-ticks-before"
-        type="text"
-        placeholder="Before tick labels, e.g. $"
-        v-bind:value="chartOptions.yAxis.ticks.beforeValue"
-        class="form-control"
-        v-on:input="setOptions()"
-      >
+      <Text
+        v-model="localOptions.yAxis.ticks.beforeValue"
+        v-bind:placeholder="'Before tick labels, e.g. $'"
+      ></Text>
+      <Text
+        v-model="localOptions.yAxis.ticks.afterValue"
+        v-bind:placeholder="'After tick labels, e.g. $'"
+      ></Text>
 
-      <input
-        ref="yaxis-ticks-after"
-        type="text"
-        placeholder="After tick labels, e.g. %"
-        v-bind:value="chartOptions.yAxis.ticks.afterValue"
-        class="form-control"
-        v-on:input="setOptions()"
-      >
+      <Checkbox
+        v-model="localOptions.yAxis.grid.display"
+        v-bind:label="'Display the y-axis grid'"
+      ></Checkbox>
 
-      <div class="checkbox">
-        <label>
-          <input
-            ref="yaxisgrid-display"
-            type="checkbox"
-            v-bind:checked="chartOptions.yAxis.grid.display"
-            v-on:input="setOptions()"
-          > Display the y-axis grid
-        </label>
-      </div>
+      <Checkbox
+        v-model="localOptions.yAxis.grid.drawOnChartArea"
+        v-bind:disabled="!localOptions.yAxis.grid.display"
+        v-bind:label="'Gridlines'"
+      ></Checkbox>
 
-      <div class="checkbox">
-        <label>
-          <input
-            ref="yaxisgrid-drawonchartarea"
-            type="checkbox"
-            v-bind:checked="chartOptions.yAxis.grid.drawOnChartArea"
-            v-bind:disabled="!chartOptions.yAxis.grid.display"
-            v-on:input="setOptions()"
-          > Gridlines
-        </label>
-      </div>
+      <Checkbox
+        v-model="localOptions.yAxis.grid.drawTicks"
+        v-bind:disabled="!localOptions.yAxis.grid.display"
+        v-bind:label="'Ticks'"
+      ></Checkbox>
 
-      <div class="checkbox">
-        <label>
-          <input
-            ref="yaxisgrid-drawticks"
-            type="checkbox"
-            v-bind:checked="chartOptions.yAxis.grid.drawTicks"
-            v-bind:disabled="!chartOptions.yAxis.grid.display"
-            v-on:input="setOptions()"
-          > Ticks
-        </label>
-      </div>
+      <Checkbox
+        v-model="localOptions.yAxis.ticks.display"
+        v-bind:label="'Tick labels'"
+      ></Checkbox>
 
-      <div class="checkbox">
-        <label>
-          <input
-            ref="yaxisgrid-ticklabels"
-            type="checkbox"
-            v-bind:checked="chartOptions.yAxis.ticks.display"
-            v-on:input="setOptions()"
-          > Tick labels
-        </label>
-      </div>
-
-      <div class="checkbox">
-        <label>
-          <input
-            ref="yaxis-beginatzero"
-            type="checkbox"
-            v-bind:checked="chartOptions.yAxis.beginAtZero"
-            v-on:input="setOptions()"
-          > Start axis values at y=0
-        </label>
-      </div>
+      <Checkbox
+        v-model="localOptions.yAxis.beginAtZero"
+        v-bind:label="'Start axis values at y=0'"
+      ></Checkbox>
     </template>
   </div>
 </template>
@@ -616,217 +482,175 @@ import mainPackage from '../package.json'
 import chartPackage from 'chart.js/package.json'
 import vuePackage from 'vue/package.json'
 
-import { ChartOptions, ChartType, Dataset, DatasetOption, DatasetOptions } from './store'
+import { ChartOptions, ChartType, Dataset, DatasetOption, DatasetOptions, getDefaultChartOptions } from './store'
 import Color from './color'
+import Checkbox from './components/Checkbox.vue'
+import Slider from './components/Slider.vue'
+import Text from './components/Text.vue'
+import Dropdown from './components/Dropdown.vue'
 
 export default defineComponent({
-  name: 'SidebarOptions',
-  props: {
-    currentView: {
-      type: String,
-      required: true
-    }
-  },
-  data: function () {
-    return {
-      // Versioning information
-      charterVersion: mainPackage.version,
-      vueVersion: vuePackage.version,
-      chartJSVersion: chartPackage.version
-    }
-  },
-  computed: {
-    legendValuePosition: function (): string {
-      if (!this.chartOptions.legend.display) {
-        return 'none' // Merge display + position into one option
-      }
-
-      if (this.chartOptions.legend.position === undefined) {
-        return 'none'
-      }
-      
-      return this.chartOptions.legend.position
-    },
-    dataset: function (): Dataset {
-      return this.$store.state.dataset
-    },
-    datasetOptions: function (): DatasetOptions {
-      return this.$store.state.datasetOptions
-    },
-    chartOptions: function (): ChartOptions {
-      return this.$store.state.chartOptions
-    },
-    labelDataset: function (): string {
-      return this.$store.state.labelDataset
-    },
-    activeDataset: function (): string {
-      return this.$store.state.activeDataset
-    },
-    activeDatasetOptions: function (): DatasetOption {
-      return this.$store.getters.activeDatasetOptions()
-    },
-    chartType: function (): ChartType {
-      return this.$store.state.chartType
-    }
-  },
-  watch: {
-  },
-  mounted: function () {
-  },
-  methods: {
-    handleFileUpload: function (event: Event) {
-      if (!(event.target instanceof HTMLInputElement)) {
-        return
-      }
-      const fileList = event.target.files
-
-      if (fileList === null) {
-        return
-      }
-
-      const file = fileList[0]
-
-      const reader = new FileReader()
-      reader.onload = (event) => {
-        const contents = reader.result // event.target.result
-        if (typeof contents !== 'string') {
-          console.error('Could not parse file: Content was not a string.')
-          return
+    name: "SidebarOptions",
+    props: {
+        currentView: {
+            type: String,
+            required: true
         }
-
-        // Now we have the file and can process the results
-        this.parseFile(contents, file.name) // Why pass the name? To guess the file type
-      }
-
-      reader.readAsText(file)
     },
-    setOptions: function () {
-      const newValue = Object.assign({}, this.chartOptions)
-      newValue.title.text = (this.$refs['title-text'] as any).value
-      newValue.title.position = (this.$refs['title-position'] as any).value
-      newValue.fontSize = (this.$refs['chart-font-size'] as any).value
-
-      newValue.drawChartBackground = (this.$refs['draw-chart-background'] as any).checked
-      newValue.chartBackgroundColor = (this.$refs['chart-background-color'] as any).value
-
-      // We're merging two options into one here
-      if ((this.$refs['legend-position'] as any).value === 'none') {
-        newValue.legend.display = false
-        newValue.legend.position = 'top'
-      } else {
-        newValue.legend.display = true
-        newValue.legend.position = (this.$refs['legend-position'] as any).value
-      }
-
-      newValue.padding = parseInt((this.$refs['layout-padding'] as any).value, 10)
-
-      newValue.resolution = parseInt((this.$refs['export-resolution'] as any).value, 10)
-
-      // We need to make sure these elements are in fact rendered.
-      if (this.chartType === 'bar') {
-        newValue.barChart.barPercentage = parseFloat((this.$refs['barchart-bar-percentage'] as any).value)
-        newValue.barChart.categoryPercentage = parseFloat((this.$refs['barchart-cat-percentage'] as any).value)
-        newValue.barChart.stacked = (this.$refs['barchart-stacked'] as any).checked
-        newValue.barChart.horizontal = (this.$refs['barchart-horizontal'] as any).checked
-      } else if (this.chartType === 'pie') {
-        newValue.pieChart.cutoutPercentage = parseInt((this.$refs['piechart-cutout'] as any).value, 10)
-      }
-
-      newValue.xAxis.grid.display = (this.$refs['xaxisgrid-display'] as any).checked
-      newValue.xAxis.grid.drawOnChartArea = (this.$refs['xaxisgrid-drawonchartarea'] as any).checked
-      newValue.xAxis.grid.drawTicks = (this.$refs['xaxisgrid-drawticks'] as any).checked
-      newValue.yAxis.grid.display = (this.$refs['yaxisgrid-display'] as any).checked
-      newValue.yAxis.grid.drawOnChartArea = (this.$refs['yaxisgrid-drawonchartarea'] as any).checked
-      newValue.yAxis.grid.drawTicks = (this.$refs['yaxisgrid-drawticks'] as any).checked
-
-      newValue.xAxis.label = (this.$refs['xaxis-label'] as any).value
-      newValue.yAxis.label = (this.$refs['yaxis-label'] as any).value
-
-      newValue.xAxis.ticks.display = (this.$refs['xaxisgrid-ticklabels'] as any).checked
-      newValue.yAxis.ticks.display = (this.$refs['yaxisgrid-ticklabels'] as any).checked
-
-      newValue.xAxis.ticks.beforeValue = (this.$refs['xaxis-ticks-before'] as any).value
-      newValue.xAxis.ticks.afterValue = (this.$refs['xaxis-ticks-after'] as any).value
-      newValue.yAxis.ticks.beforeValue = (this.$refs['yaxis-ticks-before'] as any).value
-      newValue.yAxis.ticks.afterValue = (this.$refs['yaxis-ticks-after'] as any).value
-
-      newValue.yAxis.beginAtZero = (this.$refs['yaxis-beginatzero'] as any).checked
-
-      // Finally emit an update
-      this.$store.commit('chartOptions', newValue)
+    data: function () {
+        return {
+            // Versioning information
+            charterVersion: mainPackage.version,
+            vueVersion: vuePackage.version,
+            chartJSVersion: chartPackage.version,
+            localOptions: getDefaultChartOptions(),
+            ignoreNextUpdate: false
+        };
     },
-    parseFile: function (contents: string, fileName: string) {
-      // Rudimentary TSV/CSV parsing. TOLD YOU IT'S JUST A SMALL TOOL! Don't
-      // expect the data loader to fulfill wonders. HOWEVER it's still easier
-      // to get a TSV file right than it is to force Excel to produce a simple
-      // chart.
-      const ext = fileName.substring(fileName.lastIndexOf('.'))
-      if (![ '.tsv', '.csv' ].includes(ext)) {
-        alert(`Unrecognised file extension: "${ext}".\n\nPlease select a ".csv" or ".tsv" file to load.`)
-        return
-      }
-
-      const isTSV = ext.toLowerCase() === '.tsv'
-
-      const lines = contents.trim().split('\n')
-      const parsedLines: string[][] = []
-
-      const separator = (isTSV) ? '\t' : ','
-
-      for (const line of lines) {
-        parsedLines.push(line.split(separator))
-      }
-
-      const labels = parsedLines.shift()
-      if (labels === undefined) {
-        throw new Error(`Could not parse dataset: Did not contain any lines`)
-      }
-
-      // Now we should have a two-dimensional array in the form of row:col. We
-      // now need to get that into our dataset format.
-      const datasets: Dataset = {}
-      for (const label of labels) {
-        datasets[label] = []
-      }
-
-      for (let row = 0; row < parsedLines.length; row++) {
-        for (let col = 0; col < parsedLines[row].length; col++) {
-          // Retrieve the correct label
-          datasets[labels[col]].push(parsedLines[row][col])
+    computed: {
+        dataset: function (): Dataset {
+            return this.$store.state.dataset;
+        },
+        datasetOptions: function (): DatasetOptions {
+            return this.$store.state.datasetOptions;
+        },
+        chartOptions: function (): ChartOptions {
+            return this.$store.state.chartOptions;
+        },
+        labelDataset: function (): string {
+            return this.$store.state.labelDataset;
+        },
+        activeDataset: function (): string {
+            return this.$store.state.activeDataset;
+        },
+        activeDatasetOptions: function (): DatasetOption {
+            return this.$store.getters.activeDatasetOptions();
+        },
+        chartType: function (): ChartType {
+            return this.$store.state.chartType;
         }
-      }
+    },
+    watch: {
+        // Here we implement two-way data binding: When the store options change,
+        // we update the local options, and vice versa. This way we can perform an
+        // easy data-binding above in the components. We prevent endless loops
+        // using the ignoreNextUpdate property
+        chartOptions: {
+          deep: true,
+          handler () {
+            if (this.ignoreNextUpdate) {
+              this.ignoreNextUpdate = false
+              return
+            }
+            this.ignoreNextUpdate = true
 
-      // At this point we have the correct data size and can notify the app
-      this.$store.commit('dataset', datasets)
-      // this.$emit('dataset', datasets)
+            // Store --> here
+            const deepClone = JSON.parse(JSON.stringify(this.chartOptions));
+            this.localOptions = deepClone;
+          }
+        },
+        localOptions: {
+          deep: true,
+          handler () {
+            if (this.ignoreNextUpdate) {
+              this.ignoreNextUpdate = false
+              return
+            }
+            this.ignoreNextUpdate = true
 
-      // Now that the app has the correct data, let's make sure our labels are
-      // sane again
-      this.$emit('useaslabels', labels[0])
+            // Here --> store
+            const deepClone = JSON.parse(JSON.stringify(this.localOptions));
+            this.$store.commit("chartOptions", deepClone);
+          }
+        }
     },
-    updateColour: function (color: Color, hexVal: string) {
-      const cols = hexRgb(hexVal)
-      color.red = cols.red
-      color.green = cols.green
-      color.blue = cols.blue
+    mounted: function () {
     },
-    setChartType: function (newType: string) {
-      this.$store.commit('chartType', newType)
+    methods: {
+        handleFileUpload: function (event: Event) {
+            if (!(event.target instanceof HTMLInputElement)) {
+                return;
+            }
+            const fileList = event.target.files;
+            if (fileList === null) {
+                return;
+            }
+            const file = fileList[0];
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const contents = reader.result; // event.target.result
+                if (typeof contents !== "string") {
+                    console.error("Could not parse file: Content was not a string.");
+                    return;
+                }
+                // Now we have the file and can process the results
+                this.parseFile(contents, file.name); // Why pass the name? To guess the file type
+            };
+            reader.readAsText(file);
+        },
+        parseFile: function (contents: string, fileName: string) {
+            // Rudimentary TSV/CSV parsing. TOLD YOU IT'S JUST A SMALL TOOL! Don't
+            // expect the data loader to fulfill wonders. HOWEVER it's still easier
+            // to get a TSV file right than it is to force Excel to produce a simple
+            // chart.
+            const ext = fileName.substring(fileName.lastIndexOf("."));
+            if (![".tsv", ".csv"].includes(ext)) {
+                alert(`Unrecognised file extension: "${ext}".\n\nPlease select a ".csv" or ".tsv" file to load.`);
+                return;
+            }
+            const isTSV = ext.toLowerCase() === ".tsv";
+            const lines = contents.trim().split("\n");
+            const parsedLines: string[][] = [];
+            const separator = (isTSV) ? "\t" : ",";
+            for (const line of lines) {
+                parsedLines.push(line.split(separator));
+            }
+            const labels = parsedLines.shift();
+            if (labels === undefined) {
+                throw new Error(`Could not parse dataset: Did not contain any lines`);
+            }
+            // Now we should have a two-dimensional array in the form of row:col. We
+            // now need to get that into our dataset format.
+            const datasets: Dataset = {};
+            for (const label of labels) {
+                datasets[label] = [];
+            }
+            for (let row = 0; row < parsedLines.length; row++) {
+                for (let col = 0; col < parsedLines[row].length; col++) {
+                    // Retrieve the correct label
+                    datasets[labels[col]].push(parsedLines[row][col]);
+                }
+            }
+            // At this point we have the correct data size and can notify the app
+            this.$store.commit("dataset", datasets);
+            // this.$emit('dataset', datasets)
+            // Now that the app has the correct data, let's make sure our labels are
+            // sane again
+            this.$emit("useaslabels", labels[0]);
+        },
+        updateColour: function (color: Color, hexVal: string) {
+            const cols = hexRgb(hexVal);
+            color.red = cols.red;
+            color.green = cols.green;
+            color.blue = cols.blue;
+        },
+        setChartType: function (newType: string) {
+            this.$store.commit("chartType", newType);
+        },
+        startFileupload: function () {
+            (this.$refs["file-input"] as HTMLInputElement).click();
+        },
+        setActiveDataset: function (newDataset: string) {
+            this.$store.commit("activeDataset", newDataset);
+        },
+        setLabelDataset: function (newDataset: string | undefined) {
+            if (newDataset === "") {
+                newDataset = undefined;
+            }
+            this.$store.commit("labelDataset", newDataset);
+        }
     },
-    startFileupload: function () {
-      (this.$refs['file-input'] as HTMLInputElement).click()
-    },
-    setActiveDataset: function (newDataset: string) {
-      this.$store.commit('activeDataset', newDataset)
-    },
-    setLabelDataset: function (newDataset: string|undefined) {
-      if (newDataset === '') {
-        newDataset = undefined
-      }
-
-      this.$store.commit('labelDataset', newDataset)
-    }
-  }
+    components: { Checkbox, Slider, Text, Dropdown }
 })
 </script>
 

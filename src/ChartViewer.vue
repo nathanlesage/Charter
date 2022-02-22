@@ -127,8 +127,6 @@ export default defineComponent({
         })
       }
 
-      console.log(chartDatasets)
-
       return chartDatasets
     }
   },
@@ -176,11 +174,21 @@ export default defineComponent({
         chart.destroy()
       }
 
+      const rowCount = Object.values(this.dataset)[0].length
+
+      const labels: Array<string|number> = (this.labelDataset !== undefined) ? this.dataset[this.labelDataset] : []
+
+      if (labels.length < rowCount) {
+        for (let i = 1; i <= rowCount; i++) {
+          labels.push(i)
+        }
+      }
+
       // @ts-ignore The ChartJS types are too complex for dynamic instantiation
       chart = new Chart(this.chartCanvas, {
         type: this.chartType,
         data: {
-          labels: this.dataset[this.labelDataset ?? ''],
+          labels: labels,
           datasets: this.chartData
         },
         options: this.getChartOptions(),

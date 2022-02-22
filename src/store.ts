@@ -34,7 +34,7 @@ export interface DatasetOptions {
   [key: string]: DatasetOption
 }
 
-export type ChartPosition = "left" | "right" | "bottom" | "top" | undefined
+export type ChartPosition = "left" | "right" | "bottom" | "top"
 
 export interface ChartOptions {
   title: {
@@ -103,14 +103,68 @@ export interface CharterState {
   activeDataset: string|undefined
 }
 
-function getDefaultDatasetOptions (): DatasetOption {
+export function getDefaultDatasetOptions (): DatasetOption {
   return {
     colour: new Color(),
     pointStyle: 'circle',
     pointRadius: 1,
-    tension: 0.5,
+    tension: 0.0,
     borderWidth: 1,
     fill: false
+  }
+}
+
+export function getDefaultChartOptions (): ChartOptions {
+  return {
+    title: {
+      text: 'Untitled Chart',
+      position: 'top'
+    },
+    legend: {
+      display: true,
+      position: 'top'
+    },
+    barChart: {
+      barPercentage: 0.8,
+      categoryPercentage: 0.8,
+      stacked: false,
+      horizontal: false
+    },
+    pieChart: {
+      cutoutPercentage: 0
+    },
+    xAxis: {
+      label: '',
+      grid: {
+        display: true,
+        drawOnChartArea: true,
+        drawTicks: true,
+      },
+      ticks: {
+        display: true,
+        beforeValue: '',
+        afterValue: ''
+      }
+    },
+    yAxis: {
+      label: '',
+      beginAtZero: false,
+      grid: {
+        display: true,
+        drawOnChartArea: true,
+        drawTicks: true
+      },
+      ticks: {
+        display: true,
+        beforeValue: '',
+        afterValue: ''
+      }
+    },
+    drawChartBackground: false,
+    chartBackgroundColor: '#ffffff',
+    padding: 30,
+    resolution: window.devicePixelRatio,
+    fontSize: 12
   }
 }
 
@@ -120,57 +174,7 @@ const store: StoreOptions<CharterState> = {
       dataset: {},
       datasetOptions: {},
       chartType: 'line',
-      chartOptions: {
-        title: {
-          text: 'Untitled Chart',
-          position: 'top'
-        },
-        legend: {
-          display: true,
-          position: 'top'
-        },
-        barChart: {
-          barPercentage: 0.8,
-          categoryPercentage: 0.8,
-          stacked: false,
-          horizontal: false
-        },
-        pieChart: {
-          cutoutPercentage: 0
-        },
-        xAxis: {
-          label: '',
-          grid: {
-            display: true,
-            drawOnChartArea: true,
-            drawTicks: true,
-          },
-          ticks: {
-            display: true,
-            beforeValue: '',
-            afterValue: ''
-          }
-        },
-        yAxis: {
-          label: '',
-          beginAtZero: false,
-          grid: {
-            display: true,
-            drawOnChartArea: true,
-            drawTicks: true
-          },
-          ticks: {
-            display: true,
-            beforeValue: '',
-            afterValue: ''
-          }
-        },
-        drawChartBackground: false,
-        chartBackgroundColor: '#ffffff',
-        padding: 30,
-        resolution: window.devicePixelRatio,
-        fontSize: 12
-      },
+      chartOptions: getDefaultChartOptions(),
       labelDataset: undefined,
       activeDataset: undefined
     }
