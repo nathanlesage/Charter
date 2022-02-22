@@ -47,6 +47,8 @@
           <!-- BEGIN OPTION VIEWER SIDEBAR CONTENTS -->
           <SidebarOptions
             v-bind:current-view="currentView"
+            v-on:save-chart="($refs['chart-viewer'] as any).saveChart()"
+            v-on:copy-chart="($refs['chart-viewer'] as any).copyChart()"
           ></SidebarOptions>
         </div>
         <!-- BEGIN: MAIN CONTENT -->

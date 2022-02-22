@@ -1,3 +1,4 @@
+import hexRgb from "hex-rgb"
 import rgbHex from "rgb-hex"
 
 export default class Color {
@@ -54,6 +55,13 @@ export default class Color {
   // Also to hex
   public toHex () {
     return rgbHex(this.r, this.g, this.b)
+  }
+
+  public fromHex (hexVal: string) {
+    const { red, green, blue } = hexRgb(hexVal);
+    this.red = red
+    this.green = green
+    this.blue = blue
   }
 
   // And also enable outputting the reverse colour

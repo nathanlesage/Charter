@@ -16,6 +16,7 @@
 
 import Color from './color'
 import { StoreOptions, createStore, Store } from 'vuex'
+import parseFile from './util/parse-csv'
  
 export interface Dataset {
   [key: string]: string[]
@@ -212,7 +213,6 @@ const store: StoreOptions<CharterState> = {
         labels.length > 0 &&
         (state.activeDataset === undefined || !(state.activeDataset in state.dataset))
       ) {
-        console.log(`Setting active Dataset to ${labels[0]}`, labels)
         state.activeDataset = labels[0]
       }
     },
@@ -234,6 +234,62 @@ const store: StoreOptions<CharterState> = {
     }
   },
   actions: {
+    readFile: function (ctx, file: File) {
+      const reader = new FileReader()
+      reader.onload = (event) => {
+          const contents = reader.result
+          if (typeof contents !== 'string') {
+            throw new Error('Could not parse file: Content was not a string.')
+          }
+
+          const ext = file.name.substring(file.name.lastIndexOf(".") + 1);
+          if (ext !== 'tsv' && ext !== 'csv') {
+              throw new Error(`Unrecognised file extension: ".${ext}".\n\nPlease select a ".csv" or ".tsv" file to load.`)
+          }
+
+          // Now we have the file and can process the results
+          const newDatasets = parseFile(contents, ext)
+          ctx.commit('dataset', newDatasets)
+        }
+        reader.readAsText(file)
+    },
+    addDataset: function (ctx) {
+      const datasets = ctx.state.dataset
+      const labels = Object.keys(datasets)
+
+      if (labels.length === 0) {
+        ctx.commit('dataset', { 'Dataset 1': ['0'] })
+        return
+      }
+
+      const rowCount = Object.values(datasets)[0].length
+      const newValues = []
+
+      for (let i = 0; i < rowCount; i++) {
+        newValues.push('0')
+      }
+
+      let newLabel = `Dataset ${labels.length + 1}`
+      if (labels.includes(newLabel)) {
+        newLabel += '(2)'
+      }
+
+      datasets[newLabel] = newValues
+      ctx.commit('dataset', datasets)
+    },
+    addRow: function (ctx) {
+      const datasets = ctx.state.dataset
+      if (Object.keys(datasets).length === 0) {
+        ctx.dispatch('addDataset')
+        return
+      }
+
+      for (const key in datasets) {
+        datasets[key].push('0')
+      }
+
+      ctx.commit('dataset', datasets)
+    }
   }
 }
 

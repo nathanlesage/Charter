@@ -14,6 +14,8 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import sanitize from 'sanitize-filename'
+import b64toBlob from 'b64-to-blob'
 import Chart, { ChartType, ChartDataset } from 'chart.js/auto'
 import { Dataset, ChartOptions, DatasetOptions } from './store'
 
@@ -327,6 +329,32 @@ export default defineComponent({
       }
 
       return chart.toBase64Image()
+    },
+    saveChart: function () {
+      const b64 = this.getBase64()
+      if (b64 === undefined) {
+        return
+      }
+
+      // Then prepare the file and basically force the browser to download the
+      // image data from an arbitrary anchor element.
+      const filename = sanitize(this.options.title.text)
+      const download = document.createElement('a')
+      download.href = b64
+      download.download = filename + '.png'
+      download.click()
+    },
+    copyChart: function () {
+      const b64 = this.getBase64()
+      if (b64 === undefined) {
+        return
+      }
+
+      // Copy to clipboard. We have to remove the data:image/png;base64,-part
+      // from the string beforehand. Let's do this oldschool.
+      const blob = b64toBlob(b64.substring(22), 'image/png')
+      const item = new ClipboardItem({ 'image/png': blob })
+      navigator.clipboard.write([item])
     }
   }
 })

@@ -35,14 +35,14 @@
       <div class="btn-group padded-vertically">
         <button
           class="btn btn-large btn-default"
-          v-on:click="$emit('addset')"
+          v-on:click="addDataset()"
         >
           <span class="icon icon-list-add"></span>
           Add dataset
         </button>
         <button
           class="btn btn-large btn-default"
-          v-on:click="$emit('addrow')"
+          v-on:click="addRow()"
         >
           <span class="icon icon-plus"></span>
           Add row
@@ -82,13 +82,13 @@
       <div class="btn-group padded-vertically-less">
         <button
           class="btn btn-small btn-primary"
-          v-on:click="$emit('export')"
+          v-on:click="$emit('saveChart')"
         >
           Save chart
         </button>
         <button
           class="btn btn-small btn-default"
-          v-on:click="$emit('copy')"
+          v-on:click="$emit('copyChart')"
         >
           Copy to clipboard
         </button>
@@ -307,7 +307,7 @@
           <input
             type="color"
             v-bind:value="'#' + datasetOptions[activeDataset].colour.toHex()"
-            v-on:input="updateColour(datasetOptions[activeDataset].colour, ($event.target as any).value)"
+            v-on:input="datasetOptions[activeDataset].colour.fromHex(($event.target as any).value)"
           >
         </div>
 
@@ -474,7 +474,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, setTransitionHooks } from 'vue'
+import { defineComponent } from 'vue'
 import rgbHex from 'rgb-hex'
 import hexRgb from 'hex-rgb'
 
@@ -507,6 +507,7 @@ export default defineComponent({
             ignoreNextUpdate: false
         };
     },
+    emits: [ 'copyChart', 'saveChart' ],
     computed: {
         dataset: function (): Dataset {
             return this.$store.state.dataset;
@@ -575,64 +576,7 @@ export default defineComponent({
             if (fileList === null) {
                 return;
             }
-            const file = fileList[0];
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const contents = reader.result; // event.target.result
-                if (typeof contents !== "string") {
-                    console.error("Could not parse file: Content was not a string.");
-                    return;
-                }
-                // Now we have the file and can process the results
-                this.parseFile(contents, file.name); // Why pass the name? To guess the file type
-            };
-            reader.readAsText(file);
-        },
-        parseFile: function (contents: string, fileName: string) {
-            // Rudimentary TSV/CSV parsing. TOLD YOU IT'S JUST A SMALL TOOL! Don't
-            // expect the data loader to fulfill wonders. HOWEVER it's still easier
-            // to get a TSV file right than it is to force Excel to produce a simple
-            // chart.
-            const ext = fileName.substring(fileName.lastIndexOf("."));
-            if (![".tsv", ".csv"].includes(ext)) {
-                alert(`Unrecognised file extension: "${ext}".\n\nPlease select a ".csv" or ".tsv" file to load.`);
-                return;
-            }
-            const isTSV = ext.toLowerCase() === ".tsv";
-            const lines = contents.trim().split("\n");
-            const parsedLines: string[][] = [];
-            const separator = (isTSV) ? "\t" : ",";
-            for (const line of lines) {
-                parsedLines.push(line.split(separator));
-            }
-            const labels = parsedLines.shift();
-            if (labels === undefined) {
-                throw new Error(`Could not parse dataset: Did not contain any lines`);
-            }
-            // Now we should have a two-dimensional array in the form of row:col. We
-            // now need to get that into our dataset format.
-            const datasets: Dataset = {};
-            for (const label of labels) {
-                datasets[label] = [];
-            }
-            for (let row = 0; row < parsedLines.length; row++) {
-                for (let col = 0; col < parsedLines[row].length; col++) {
-                    // Retrieve the correct label
-                    datasets[labels[col]].push(parsedLines[row][col]);
-                }
-            }
-            // At this point we have the correct data size and can notify the app
-            this.$store.commit("dataset", datasets);
-            // this.$emit('dataset', datasets)
-            // Now that the app has the correct data, let's make sure our labels are
-            // sane again
-            this.$emit("useaslabels", labels[0]);
-        },
-        updateColour: function (color: Color, hexVal: string) {
-            const cols = hexRgb(hexVal);
-            color.red = cols.red;
-            color.green = cols.green;
-            color.blue = cols.blue;
+            this.$store.dispatch('readFile', fileList[0])
         },
         setChartType: function (newType: string) {
             this.$store.commit("chartType", newType);
@@ -648,6 +592,12 @@ export default defineComponent({
                 newDataset = undefined;
             }
             this.$store.commit("labelDataset", newDataset);
+        },
+        addDataset: function () {
+          this.$store.dispatch('addDataset')
+        },
+        addRow: function () {
+          this.$store.dispatch('addRow')
         }
     },
     components: { Checkbox, Slider, Text, Dropdown }
